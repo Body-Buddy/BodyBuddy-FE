@@ -1,5 +1,5 @@
 <template>
-  <div class="signup-container bg-white shadow-md rounded-lg p-6 mx-auto w-96">
+  <div class="signup-container bg-white shadow-md rounded-lg p-6 w-full max-w-md mx-auto">
     <h1 class="font-bold text-2xl mb-6 text-center">Sign Up</h1>
 
     <div class="mb-4">
@@ -29,6 +29,7 @@
       >
       <div class="flex">
         <input
+          :class="{ 'border-red-500': showEmailVerificationError }"
           class="shadow appearance-none border rounded w-3/4 py-2 px-3 mr-2"
           type="text"
           v-model="emailCode"
@@ -36,14 +37,17 @@
           placeholder="인증코드"
         />
         <button
-          :disabled="emailCodeSent"
-          :class="{ 'bg-gray-400': emailCodeSent, 'bg-blue-600': !emailCodeSent }"
+          :disabled="isEmailVerified"
+          :class="{ 'bg-gray-400': isEmailVerified, 'bg-blue-600': !isEmailVerified }"
           class="text-white font-bold py-2 px-4 rounded w-1/4"
-          @click="sendEmailCode"
+          @click="verifyEmailCode"
         >
-          전송
+          확인
         </button>
       </div>
+      <span v-if="showEmailVerificationError" class="text-red-500 text-xs mt-2"
+          >이메일 인증을 완료해주세요.</span
+        >
     </div>
 
     <div class="mb-4">
@@ -111,22 +115,30 @@ export default {
       gender: '',
       birthDate: '',
       emailCodeSent: false,
-      isEmailVerified: true
+      isEmailVerified: false,
+      isValidPassword: true,
+      showEmailVerificationError: false
     }
   },
-  computed: {
-    isValidPassword() {
-      const pattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/
-      return pattern.test(this.password)
+  watch: {
+    password(newValue) {
+      this.checkPasswordPattern(newValue)
     }
   },
+
   methods: {
+    checkPasswordPattern(password) {
+      const pattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()])[A-Za-z\d!@#$%^&*()]{8,15}$/
+      this.isValidPassword = pattern.test(password)
+    },
+
     async sendEmailCode() {
       this.emailCodeSent = true
       try {
         const response = await api.post('/email-verification/request', {
           email: this.email
         })
+        console.log(response)
 
         if (response.status !== 200) {
           this.emailCodeSent = false
@@ -144,12 +156,13 @@ export default {
           email: this.email,
           code: this.emailCode
         })
+        console.log(response)
 
         if (response.status === 200) {
           window.alert('이메일 인증이 완료되었습니다!')
           this.isEmailVerified = true
         } else {
-          window.alert('인증 코드가 올바르지 않습니다. 다시 확인해주세요.')
+          window.alert('인증 코드가 올바르지 않습니다.')
         }
       } catch (error) {
         console.error('Error verifying email code:', error)
@@ -157,6 +170,8 @@ export default {
       }
     },
     async handleSignup() {
+      this.showEmailVerificationError = !this.isEmailVerified
+
       try {
         const response = await api.post('/users/signup', {
           email: this.email,
@@ -164,11 +179,12 @@ export default {
           gender: this.gender,
           birthDate: this.birthDate
         })
-
+        console.log(response)
+        
         if (response.status === 200) {
           this.$router.push('/login')
         } else {
-          alert('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
+          alert('필수 정보를 모두 입력해주세요.')
         }
       } catch (error) {
         console.error('Error during signup:', error)

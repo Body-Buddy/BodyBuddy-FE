@@ -1,5 +1,5 @@
 <template>
-  <div class="signup-container bg-white shadow-md rounded-lg p-6 mx-auto w-96">
+  <div class="login-container bg-white shadow-md rounded-lg p-6 max-w-md mx-auto">
     <h1 class="text-2xl font-bold mb-4">로그인</h1>
 
     <div class="mb-4">
@@ -78,18 +78,32 @@ export default {
           email: this.email,
           password: this.password
         })
+        console.log(response)
 
         if (response.status === 200) {
-          if (response.isNewUser === true) {
-            this.$router.push('/profile/setup')
-          } else {
+          window.alert('성공적으로 로그인되었습니다!')
+
+          const userId = response.data.userId
+          const profileExists = response.data.profileExists
+          const token = response.headers.get('Authorization')
+
+          if (token) {
+            localStorage.setItem('jwtToken', token.replace('Bearer ', ''))
+          }
+
+          if (profileExists === true) {
             this.$router.push('/friends')
+          } else {
+            this.$router.push({
+              name: 'GymSearch',
+              params: { userId: userId }
+            })
           }
         } else {
-          alert('로그인 중 문제가 발생했습니다. 다시 시도해주세요.')
+          alert('회원 정보가 일치하지 않습니다.')
         }
       } catch (error) {
-        console.error('Error during signup:', error)
+        console.error('Error during login:', error)
         alert('로그인 중 문제가 발생했습니다. 다시 시도해주세요.')
       }
     },

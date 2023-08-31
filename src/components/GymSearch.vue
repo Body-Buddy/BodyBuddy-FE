@@ -9,8 +9,25 @@
       />
       <button @click="searchGyms" class="px-4 bg-blue-500 text-white rounded-r">검색</button>
     </div>
-    <ul class="mt-4">
-      <li v-for="gym in gyms" :key="gym.id" class="gym-item mb-4 p-4 bg-white rounded shadow-md relative">
+
+    <div
+      @click="toggleSearchResults"
+      class="cursor-pointer bg-gray-300 text-center py-1 hover:bg-gray-400"
+    >
+      <span v-if="!showSearchResults">검색 결과 보이기</span>
+      <span v-else>검색 결과 숨기기</span>
+      <i class="fas fa-chevron-up ml-2"></i>
+    </div>
+
+    <ul v-if="showSearchResults" class="mt-4">
+      <li v-if="noResults" class="text-center p-4 bg-red-200 rounded shadow-md">
+        검색 결과가 없습니다.
+      </li>
+      <li
+        v-for="gym in gyms"
+        :key="gym.id"
+        class="gym-item mb-4 p-4 bg-white rounded shadow-md relative"
+      >
         <h2 class="gym-name text-xl font-bold mb-2 text-center">{{ gym.name }}</h2>
         <p class="gym-address text-sm text-gray-600 text-center">{{ gym.roadAddress }}</p>
         <div class="gym-actions mt-4 text-center">
@@ -25,17 +42,30 @@
         </div>
         <!-- 추가하기 버튼 -->
         <button
-          v-if="!gym.added"
           @click="addToMyGyms(gym)"
           class="absolute top-2 right-2 w-7 h-7 bg-blue-500 hover:bg-blue-700 text-white rounded-md flex items-center justify-center"
           title="나의 헬스장으로 등록"
         >
           <i class="fas fa-plus"></i>
         </button>
+      </li>
+    </ul>
+  </div>
 
-        <!-- 이미 추가된 상태의 버튼 (빨간색 X 버튼) -->
+  <!-- My Gyms List -->
+  <div v-if="myGyms.length" class="max-w-xl mx-auto mt-6 text-center">
+    <h3 class="text-xl font-bold mt-6 mb-4">나의 헬스장 목록</h3>
+    <ul>
+      <li
+        v-for="myGym in myGyms"
+        :key="myGym.id"
+        class="gym-item mb-4 p-4 bg-white rounded shadow-md relative"
+      >
+        <h2 class="gym-name text-xl font-bold mb-2">{{ myGym.name }}</h2>
+        <p class="gym-address text-sm text-gray-600">{{ myGym.roadAddress }}</p>
+
         <button
-          v-else
+          @click="removeFromMyGyms(myGym)"
           class="absolute top-2 right-2 w-7 h-7 bg-red-500 hover:bg-red-700 text-white rounded-md flex items-center justify-center"
           title="나의 헬스장에서 삭제"
         >
@@ -43,6 +73,9 @@
         </button>
       </li>
     </ul>
+    <button @click="submitMyGyms" class="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none hover:bg-blue-600">
+      다음으로
+    </button>
   </div>
 </template>
 
@@ -60,8 +93,11 @@ export default {
     return {
       query: '',
       gyms: [],
+      myGyms: [],
       latitude: null,
-      longitude: null
+      longitude: null,
+      showSearchResults: true,
+      noResults: false
     }
   },
   mounted() {
@@ -84,10 +120,15 @@ export default {
         console.warn('이 브라우저는 Geolocation을 지원하지 않습니다.')
       }
     },
+    toggleSearchResults() {
+      this.showSearchResults = !this.showSearchResults
+    },
     async searchGyms() {
       if (!this.query.trim()) {
         return
       }
+
+      this.showSearchResults = true
 
       let params = {
         query: this.query
@@ -100,27 +141,51 @@ export default {
 
       try {
         const response = await api.get('/gyms/search', { params })
-        this.gyms = response.data.map((gym) => ({
-          ...gym,
-          added: false
-        }))
+        if (response.data && response.data.length > 0) {
+          this.gyms = response.data
+          this.noResults = false
+        } else {
+          this.gyms = []
+          this.noResults = true
+        }
+        console.log(response)
       } catch (error) {
         console.error('API 호출 중 오류 발생:', error)
       }
     },
-    async addToMyGyms(gym) {
-      try {
-        const response = await api.post(`/users/${this.userId}/gyms`, gym)
 
-        if (response.status === 200) {
-          alert('나의 헬스장으로 등록되었습니다.')
-          gym.added = true
-        } else {
-          console.error('헬스장 추가 중 문제가 발생했습니다.')
-        }
-      } catch (error) {
-        console.error('API 호출 중 오류 발생:', error)
+    addToMyGyms(gym) {
+      this.gyms = this.gyms.filter((g) => g.id !== gym.id)
+      this.myGyms.push(gym)
+    },
+
+    removeFromMyGyms(gym) {
+      this.myGyms = this.myGyms.filter((g) => g.id !== gym.id)
+    },
+
+    async submitMyGyms() {
+      if (this.myGyms.length === 0 || this.myGyms.length > 5) {
+        alert('헬스장은 1개 이상 5개 이하로 선택 가능합니다.')
+        return
       }
+
+      for (let gym of this.myGyms) {
+        try {
+          const response = await api.post(`/users/${this.userId}/gyms`, gym)
+          console.log(response)
+          if (response.status !== 200) {
+            window.alert('이미 등록된 헬스장입니다.')
+          }
+        } catch (error) {
+          console.error('API 호출 중 오류 발생:', error)
+          return
+        }
+      }
+      alert('나의 헬스장으로 등록되었습니다.')
+      this.$router.push({
+        name: 'ProfileForm',
+        params: { userId: this.userId }
+      })
     }
   }
 }

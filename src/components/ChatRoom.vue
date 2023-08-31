@@ -1,28 +1,29 @@
 <template>
-  <div class="chat-container bg-white border border-gray-200 rounded-lg shadow-md flex flex-col">
-    <div class="chat-header bg-gray-100 p-4 border-b border-gray-200 text-center">
-      <h3 class="font-bold">Chat Room</h3>
-    </div>
+  <div class="container mx-auto px-4 py-6">
+      <h2 class="text-2xl font-bold mb-6">채팅</h2>
 
-    <div class="chat-messages flex-grow overflow-y-auto p-4">
-      <div v-for="message in messages" :key="message.sentAt" class="message flex items-center space-x-4 mb-4">
-        <img :src="message.profileImage" alt="Profile Image" class="profile-image w-10 h-10 rounded-full">
-        <div class="message-details flex flex-col">
-          <span class="nickname font-semibold">{{ message.nickname }}</span>
-          <span class="content text-gray-800">{{ message.content }}</span>
-          <span class="timestamp text-gray-500 text-xs">{{ formatDate(message.sentAt) }}</span>
-        </div>
+      <div v-for="chat in chats" :key="chat.id" @click="openChat(chat.id)"
+           @contextmenu.prevent="showExitConfirmation(chat.id)"
+           class="p-4 bg-white rounded shadow-md cursor-pointer hover:bg-gray-100 transition-all duration-200 flex">
+           
+          <!-- 프로필 이미지 -->
+          <img :src="chat.profileImage" alt="Friend's profile image" class="w-10 h-10 rounded-full mr-4">
+
+          <div class="flex-grow">
+              <!-- 친구 이름 -->
+              <div class="chat-room-name text-lg font-bold">{{ chat.friendName }}</div>
+              <!-- 마지막 메시지 -->
+              <div class="last-message text-sm text-gray-600 mt-1">{{ chat.lastMessage }}</div>
+          </div>
+          
+          <!-- 마지막 메시지 시간 -->
+          <div class="text-gray-400 text-xs self-start">{{ chat.lastMessageTime }}</div>
       </div>
-    </div>
-
-    <div class="chat-input flex p-4 space-x-4 border-t border-gray-200">
-      <input type="text" v-model="inputMessage" @keyup.enter="sendMessage" 
-             class="flex-grow p-2 border border-gray-300 rounded-l">
-      <button @click="sendMessage" 
-              class="text-white bg-blue-500 px-4 py-2 rounded-r hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:ring-opacity-50">Send</button>
-    </div>
   </div>
 </template>
+
+<!-- 나머지 <script> 부분은 그대로 유지 -->
+
   
   <script>
   export default {

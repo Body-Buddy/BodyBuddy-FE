@@ -3,7 +3,8 @@ import AppLayout from '@/components/AppLayout.vue';
 import FriendList from '@/components/FriendList.vue';
 import ChatRoom from '@/components/ChatRoom.vue';
 import ChatList from '@/components/ChatList.vue';
-import Post from '@/components/Post.vue';
+import PostComponent from '@/components/PostComponent.vue';
+import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
 import LoginComponent from '@/components/LoginComponent.vue';
 import SignupComponent from '@/components/SignupComponent.vue';
@@ -17,24 +18,30 @@ const routes = [
     component: AppLayout,
     children: [
       {
-        path: 'friends',
+        path: '/friends',
+        name: 'FriendList',
         component: FriendList,
+        props: true
       },
       {
-        path: 'chats',
+        path: '/chats',
         component: ChatList,
       },
       {
-        path: 'chats/:chatId',
+        path: '/chats/private/:chatId',
         component: ChatRoom
       },
       {
-        path: 'posts',
+        path: '/posts',
         component: PostList
       },
       {
-        path: 'posts/:postId',
-        component: Post
+        path: '/posts/new',
+        component: PostForm
+      },
+      {
+        path: '/posts/:postId',
+        component: PostComponent
       }
     ],
   },
@@ -47,16 +54,20 @@ const routes = [
     component: SignupComponent
   },
   {
-    path: '/gyms',
-    component: GymSearch
+    path: '/gyms/setup',
+    name: 'GymSearch',
+    component: GymSearch,
+    props: true
   },
   {
     path: '/profile/setup',
+    name: 'ProfileForm',
     component: ProfileForm,
     props: true
   },
   {
     path: '/matching/setup',
+    name: 'MatchingForm',
     component: MatchingForm,
     props: true
   }
