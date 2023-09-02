@@ -1,11 +1,14 @@
 <template>
-  <div class="bg-gray-100 min-h-screen pt-8 pb-20">
-    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-      <div class="relative mb-6">
+  <div class="max-w-xl mx-auto mt-10">
+    <div class="flex items-center">
+      <h2 class="text-2xl font-bold">친구 목록</h2>
+
+      <!-- 헬스장 선택 드롭다운 -->
+      <div class="relative ml-6">
         <select
           v-model="selectedGymId"
           @change="fetchFriendsForSelectedGym"
-          class="w-full appearance-none p-2 border rounded focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          class="w-48 appearance-none p-2 border rounded"
         >
           <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
         </select>
@@ -17,27 +20,26 @@
           </svg>
         </div>
       </div>
-      <div class="text-center mb-6">
-        <h1 class="text-2xl font-bold mb-2">친구 목록</h1>
-        <p class="text-sm text-gray-500 mb-2">같은 헬스장에서 운동하는 친구들을 만나보세요!</p>
     </div>
-    <div v-for="friend in friends" :key="friend.id" class="border-t pt-4 mt-4">
-        <div class="flex items-center mb-4">
-          <img
-            :src="friend.imageUrl"
-            alt="Profile Image"
-            class="w-12 h-12 rounded-full flex-none mr-4"
-          />
-          <div class="flex-grow text-lg font-semibold">{{ friend.nickname }}</div>
-          <!-- 버튼을 우측 하단으로 옮기기 위한 변경 -->
-          <button
-            @click="startChat(friend.userId)"
-            class="ml-auto bg-blue-500 text-white rounded-full px-3 py-1 hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-          >
-          <i class="fas fa-paper-plane"></i>
-          </button>
+
+    <div v-for="friend in friends" :key="friend.id" class="border-b pt-4 mt-4">
+      <div class="flex items-center mb-4">
+        <img
+          :src="friend.imageUrl"
+          alt="Profile Image"
+          class="w-24 h-24 rounded-full flex-none mr-4"
+        />
+
+        <div class="flex-col">
+          <div class="flex-grow text-lg font-semibold mb-2">{{ friend.nickname }}</div>
+          <div class="text-gray-500 mb-4">{{ friend.introduction }}</div>
         </div>
-        <div class="text-sm text-gray-500 mb-4">{{ friend.introduction }}</div>
+        <button
+          @click="startChat(friend.userId)"
+          class="ml-auto bg-blue-500 text-white rounded-full h-8 w-10 flex items-center justify-center transition-transform transform hover:scale-110 hover:bg-blue-600 active:scale-100 active:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-400 shadow-lg"
+        >
+          <i class="fas fa-paper-plane"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -60,6 +62,9 @@ export default {
       selectedGymId: null
     }
   },
+  mounted() {
+    this.fetchUserGyms()
+  },
   methods: {
     async fetchUserGyms() {
       try {
@@ -78,6 +83,7 @@ export default {
       try {
         const response = await api.get(`/gyms/${this.selectedGymId}/matches`)
         this.friends = response.data
+        console.log(response.data)
       } catch (error) {
         console.error('친구 목록을 가져오는 중 오류 발생:', error)
       }
@@ -85,9 +91,6 @@ export default {
     startChat(friendId) {
       this.$router.push(`/chats/private/${friendId}`)
     }
-  },
-  mounted() {
-    this.fetchUserGyms()
   }
 }
 </script>

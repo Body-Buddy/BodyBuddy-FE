@@ -1,93 +1,118 @@
 <template>
-  <div class="post-container bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+  <div class="max-w-xl mx-auto mt-10">
+    <div class="flex justify-between items-center mb-6">
+      
+      <div class="flex items-center">
+        <h2 class="text-2xl font-bold">게시판</h2>
 
-    <!-- 글쓰기 버튼 -->
-    <div class="flex write-button mb-4">
-      <button @click="writePost" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">글쓰기</button>
-    </div>
-
-    <!-- 정렬 기준 선택 버튼 -->
-    <div class="sort-button mb-4">
-      <select v-model="sortOrder" class="border p-2 rounded">
-        <option value="latest">최신순</option>
-        <option value="oldest">오래된 순</option>
-        <option value="likes">좋아요 순</option>
-      </select>
-    </div>
-
-    <div class="post bg-white p-6 max-w-3xl mx-auto mt-10 rounded-lg shadow-md">
-      <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
-      <p class="mb-4">{{ post.content }}</p>
-      <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">
-        <span>{{ post.author }}</span>
-        <span>{{ post.date }}</span>
-        <button @click="likePost" class="bg-blue-500 text-white px-3 py-1 rounded-full">{{ post.likes }} 좋아요</button>
+        <!-- 헬스장 선택 드롭다운 -->
+        <div class="relative ml-6">
+          <select
+            v-model="selectedGymId"
+            @change="fetchPostsForSelectedGym"
+            class="w-48 appearance-none p-2 border rounded"
+          >
+            <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
+          </select>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
+          >
+            <svg
+              class="fill-current h-4 w-4"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+            >
+              <path d="M5.293 9.293L10 14.586l4.707-4.293-.707-.707L10 13.172 6 9.293l-.707.707z" />
+            </svg>
+          </div>
+        </div>
       </div>
-      <input v-model="newComment" placeholder="댓글 작성하기..." class="border p-2 w-full rounded mb-3" />
-      <button @click="addComment" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors">댓글 등록</button>
 
-      <div class="comments space-y-4" v-for="comment in comments" :key="comment.id">
-        <p class="text-gray-700 mb-2">{{ comment.content }}</p>
-        <div class="comment-footer flex justify-between items-center text-gray-500 text-sm">
-          <span>{{ comment.author }}</span>
-          <span>{{ comment.date }}</span>
-          <button @click="likeComment(comment.id)" class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 transition-colors">{{ comment.likes }} 좋아요</button>
+      <!-- 검색 바 -->
+      <div class="relative w-64">
+        <input type="text" class="w-full p-2 border rounded" placeholder="게시글 검색..." />
+        <div class="absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+          <i class="fas fa-search"></i>
         </div>
       </div>
     </div>
 
+    <div class="flex justify-end mb-4">
+      <button
+        @click="writePost"
+        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+      >
+        글쓰기
+      </button>
+    </div>
+    <div class="post bg-white p-6 mt-4 rounded-lg shadow-md" v-for="post in posts" :key="post.id">
+      <!-- 게시글 내용 -->
+      <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
+      <p class="mb-4">{{ post.content }}</p>
+      <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">
+        <span>{{ post.author }}</span>
+        <span>{{ post.createdAt }}</span>
+      </div>
+    </div>
+
     <!-- 페이징 처리 -->
-    <div class="pagination mt-4 flex justify-center">
-      <button @click="goToPage(currentPage - 1)" :disabled="currentPage <= 1" class="mx-1 px-3 py-1 border rounded">이전</button>
-      <span class="mx-1">{{ currentPage }}</span>
-      <button @click="goToPage(currentPage + 1)" class="mx-1 px-3 py-1 border rounded">다음</button>
+    <div class="pagination mt-6 flex justify-center space-x-2">
+      <button
+        @click="goToPage(currentPage - 1)"
+        :disabled="currentPage <= 1"
+        class="px-4 py-2 border rounded"
+      >
+        이전
+      </button>
+      <span class="px-4 py-2 bg-gray-200 text-gray-700 rounded">{{ currentPage }}</span>
+      <button @click="goToPage(currentPage + 1)" class="px-4 py-2 border rounded">다음</button>
     </div>
   </div>
 </template>
 
 <script>
+import api from '@/axios.js'
+
 export default {
   data() {
     return {
-      post: {
-        title: "Post Title",
-        content: "This is a sample post content.",
-        author: "Author Name",
-        date: "2023-08-28",
-        likes: 10
-      },
-      comments: [],
-      newComment: "",
-      sortOrder: 'latest',  // 정렬 기준을 저장하기 위한 데이터
-      currentPage: 1      // 현재 페이지 번호
-    };
+      posts: [],
+      currentPage: 1,
+      gyms: [],
+      selectedGymId: null
+    }
+  },
+  mounted() {
+    this.fetchUserGyms()
   },
   methods: {
-    likePost() {
-      this.post.likes++;
+    async fetchUserGyms() {
+      try {
+        const response = await api.get(`/users/${this.userId}/gyms`)
+        this.gyms = response.data
+        if (this.gyms.length > 0) {
+          this.selectedGymId = this.gyms[0].id
+          this.fetchPostsForSelectedGym()
+        }
+      } catch (error) {
+        console.error('헬스장 목록을 가져오는 중 오류 발생:', error)
+      }
     },
-    likeComment(commentId) {
-      const comment = this.comments.find(c => c.id === commentId);
-      comment.likes++;
-    },
-    addComment() {
-      if (this.newComment.trim() !== "") {
-        const comment = {
-          content: this.newComment,
-          author: "Current User",
-          date: new Date().toISOString().slice(0, 10),
-          likes: 0
-        };
-        this.comments.push(comment);
-        this.newComment = "";
+    async fetchPostsForSelectedGym() {
+      if (!this.selectedGymId) return
+      try {
+        const response = await api.get(`/gyms/${this.selectedGymId}/posts`)
+        this.posts = response.data
+      } catch (error) {
+        console.error('게시글 목록을 가져오는 중 오류 발생:', error)
       }
     },
     writePost() {
-      // 글쓰기 로직
+      this.$router.push({ name: 'PostForm', params: { gymId: this.selectedGymId } })
     },
     goToPage(pageNumber) {
-      this.currentPage = pageNumber;
+      this.currentPage = pageNumber
     }
   }
-};
+}
 </script>

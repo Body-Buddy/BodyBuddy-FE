@@ -1,6 +1,6 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-      <h2 class="text-2xl font-bold mb-6">채팅</h2>
+  <div class="max-w-xl mx-auto mt-10">
+      <h2 class="text-2xl font-bold mb-6">채팅방</h2>
 
       <div v-for="chat in chats" :key="chat.id" @click="openChat(chat.id)"
            @contextmenu.prevent="showExitConfirmation(chat.id)"

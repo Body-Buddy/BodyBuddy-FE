@@ -1,6 +1,10 @@
 <template>
-  <div class="profile-form bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
-    <h2 class="text-2xl font-bold mb-4">프로필 작성</h2>
+  <div class="max-w-xl mx-auto mt-10">
+    <div class="mb-4">
+      <p class="text-blue-500 text-3xl tracking-wide font-extrabold mb-2">2/3</p>
+      <p class="font-bold text-2xl mb-2">프로필을 등록해주세요.</p>
+      <p class="text-gray-600">함께 운동할 친구에게 자기소개를 해볼까요?</p>
+    </div>
 
     <div class="mb-6">
       <label class="block text-sm font-bold mb-2" for="nickname"
@@ -12,7 +16,7 @@
         type="text"
         id="nickname"
         v-model="nickname"
-        placeholder="본명일수록 좋아요!"
+        placeholder="본명일수록 좋아요."
         required
       />
       <p v-if="nicknameError" class="text-red-500 text-xs mt-2">닉네임은 필수로 입력해주세요.</p>
@@ -21,10 +25,20 @@
     <div class="mb-6">
       <label class="block text-sm font-bold mb-2" for="profileImage">프로필 이미지</label>
       <input type="file" id="profileImage" ref="fileInput" @change="onImageChange" />
-
-      <div class="mt-2" v-if="imagePreview">
-        <img :src="imagePreview" alt="Profile Preview" class="h-24 w-24 rounded-full border mb-2" />
-        <button @click="removeImage" class="text-red-500">이미지 삭제</button>
+      <div class="flex">
+        <div class="mt-2 relative" v-if="imagePreview">
+          <img
+            :src="imagePreview"
+            alt="Profile Preview"
+            class="h-32 w-32 object-cover rounded shadow m-2"
+          />
+          <button
+            @click="removeImage"
+            class="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center hover:bg-red-600 transition-colors focus:outline-none"
+          >
+            &times;
+          </button>
+        </div>
       </div>
     </div>
 
@@ -35,7 +49,7 @@
         id="introduction"
         v-model="introduction"
         rows="4"
-        placeholder="자기소개를 작성하세요"
+        placeholder="자신을 소개해주세요."
       ></textarea>
     </div>
 

@@ -1,21 +1,24 @@
 <template>
-  <div
-    class="flex flex-col items-start space-y-8 min-h-screen justify-center p-6 bg-white w-full rounded-lg shadow-lg max-w-md mx-auto"
-  >
-    <div v-for="category in categories" :key="category.name">
-      <h3 class="text-xl font-bold mb-2">{{ category.name }}</h3>
-
-      <p v-if="category.name === '운동 목표'" class="text-gray-500 text-sm mb-2">
-        여러 개 선택 가능해요.
-      </p>
-
-      <div class="tag-container flex items-start flex-wrap">
+  <div class="max-w-xl mx-auto mt-10">
+    <div class="mb-8">
+      <p class="text-blue-500 text-3xl tracking-wide font-extrabold mb-2">3/3</p>
+      <p class="font-bold text-2xl mb-2">추가 정보를 입력해주세요.</p>
+      <p class="text-gray-600">더 잘 맞는 운동 친구를 찾아드릴게요!</p>
+    </div>
+    <div v-for="category in categories" :key="category.name" class="mb-6">
+      <div class="mb-2">
+        <span class="text-lg font-semibold">{{ category.name }}</span>
+        <span v-if="category.name === '운동 목표'" class="pl-1 text-gray-500 text-sm">
+          여러 개 선택 가능해요.
+        </span>
+      </div>
+      <div class="flex items-start flex-wrap">
         <div
           v-for="tag in category.tags"
           :key="tag"
           :class="[
             'tag',
-            'px-4 py-1 mb-2 mr-2 rounded-full cursor-pointer transition-colors',
+            'px-4 py-1 mb-3 mr-2 rounded-full cursor-pointer transition-colors',
             category.selected === tag ||
             (Array.isArray(category.selected) && category.selected.includes(tag))
               ? 'bg-blue-500 text-white'
@@ -28,12 +31,14 @@
       </div>
     </div>
 
-    <button
-      class="w-full bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none hover:bg-blue-600"
-      @click="submitCriteria"
-    >
-      다음으로
-    </button>
+    <div class="text-center mt-8 mb-10">
+      <button
+        class="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none hover:bg-blue-600"
+        @click="submitCriteria"
+      >
+        다음으로
+      </button>
+    </div>
   </div>
 </template>
 
@@ -51,12 +56,12 @@ export default {
     return {
       categories: [
         {
-          name: '성별',
+          name: '내 친구의 성별',
           tags: ['동성 친구가 좋아요', '상관없어요'],
           selected: null
         },
         {
-          name: '나이',
+          name: '내 친구의 나이',
           tags: ['같은 연령대가 좋아요', '상관없어요'],
           selected: null
         },
@@ -153,7 +158,7 @@ export default {
         }
         const response = await api.post(`/users/${this.userId}/criteria`, criteriaData)
         console.log(response)
-        if(response.status !== 200) {
+        if (response.status !== 200) {
           window.alert('매칭 기준 저장에 실패했습니다. 다시 시도해주세요.')
           return
         }

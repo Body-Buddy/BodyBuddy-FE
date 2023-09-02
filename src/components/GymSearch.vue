@@ -1,20 +1,25 @@
 <template>
-  <div class="gym-search max-w-xl mx-auto mt-6">
+  <div class="max-w-xl mx-auto mt-10">
+    <div class="mb-4">
+      <p class="text-blue-500 text-3xl tracking-wide font-extrabold mb-2">1/3</p>
+      <p class="font-bold text-2xl mb-2">주로 어디서 운동하세요?</p>
+      <p class="text-gray-600">헬스장, 요가원, 클라이밍짐 어디든 좋아요.</p>
+    </div>
     <div class="search-bar flex">
       <input
         class="search-input flex-grow p-3 border rounded-l focus:border-blue-500 focus:outline-none"
         v-model="query"
         @keyup.enter="searchGyms"
-        placeholder="헬스장 검색"
+        placeholder="운동 장소나 주소명을 입력하세요."
       />
       <button @click="searchGyms" class="px-4 bg-blue-500 text-white rounded-r">검색</button>
     </div>
 
     <div
       @click="toggleSearchResults"
-      class="cursor-pointer bg-gray-300 text-center py-1 hover:bg-gray-400"
+      class="cursor-pointer bg-gray-300 text-gray-500 text-center py-1"
     >
-      <span v-if="!showSearchResults">검색 결과 보이기</span>
+      <span v-if="!showSearchResults">검색 결과 보기</span>
       <span v-else>검색 결과 숨기기</span>
       <i class="fas fa-chevron-up ml-2"></i>
     </div>
@@ -28,7 +33,7 @@
         :key="gym.id"
         class="gym-item mb-4 p-4 bg-white rounded shadow-md relative"
       >
-        <h2 class="gym-name text-xl font-bold mb-2 text-center">{{ gym.name }}</h2>
+        <h2 class="gym-name font-semibold mb-2 text-center">{{ gym.name }}</h2>
         <p class="gym-address text-sm text-gray-600 text-center">{{ gym.roadAddress }}</p>
         <div class="gym-actions mt-4 text-center">
           <a
@@ -52,16 +57,16 @@
     </ul>
   </div>
 
-  <!-- My Gyms List -->
+  <!-- 나의 헬스장 목록 -->
   <div v-if="myGyms.length" class="max-w-xl mx-auto mt-6 text-center">
-    <h3 class="text-xl font-bold mt-6 mb-4">나의 헬스장 목록</h3>
+    <h2 class="font-bold text-xl mb-2">나의 헬스장 목록</h2>
     <ul>
       <li
         v-for="myGym in myGyms"
         :key="myGym.id"
         class="gym-item mb-4 p-4 bg-white rounded shadow-md relative"
       >
-        <h2 class="gym-name text-xl font-bold mb-2">{{ myGym.name }}</h2>
+        <h2 class="gym-name font-semibold mb-2">{{ myGym.name }}</h2>
         <p class="gym-address text-sm text-gray-600">{{ myGym.roadAddress }}</p>
 
         <button
@@ -73,7 +78,10 @@
         </button>
       </li>
     </ul>
-    <button @click="submitMyGyms" class="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none hover:bg-blue-600">
+    <button
+      @click="submitMyGyms"
+      class="bg-blue-500 text-white font-bold py-2 px-4 rounded focus:outline-none hover:bg-blue-600"
+    >
       다음으로
     </button>
   </div>
