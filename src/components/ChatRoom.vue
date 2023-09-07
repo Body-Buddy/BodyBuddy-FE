@@ -1,66 +1,110 @@
 <template>
-  <div class="max-w-xl mx-auto mt-10">
-      <h2 class="text-2xl font-bold mb-6">채팅방</h2>
-
-      <div v-for="chat in chats" :key="chat.id" @click="openChat(chat.id)"
-           @contextmenu.prevent="showExitConfirmation(chat.id)"
-           class="p-4 bg-white rounded shadow-md cursor-pointer hover:bg-gray-100 transition-all duration-200 flex">
-           
-          <!-- 프로필 이미지 -->
-          <img :src="chat.profileImage" alt="Friend's profile image" class="w-10 h-10 rounded-full mr-4">
-
-          <div class="flex-grow">
-              <!-- 친구 이름 -->
-              <div class="chat-room-name text-lg font-bold">{{ chat.friendName }}</div>
-              <!-- 마지막 메시지 -->
-              <div class="last-message text-sm text-gray-600 mt-1">{{ chat.lastMessage }}</div>
-          </div>
-          
-          <!-- 마지막 메시지 시간 -->
-          <div class="text-gray-400 text-xs self-start">{{ chat.lastMessageTime }}</div>
+  <div class="flex flex-col h-full">
+    <!-- Chat Header -->
+    <div class="p-4 bg-white border-b flex items-center">
+      <img :src="chatInfo.profileImage" alt="Profile image" class="w-12 h-12 rounded-full" />
+      <div class="ml-4">
+        <div class="font-bold text-xl">{{ chatInfo.name }}</div>
+        <div class="text-gray-600 text-sm">{{ chatInfo.status }}</div>
       </div>
+    </div>
+
+    <!-- Chat Messages Area -->
+    <div class="flex-grow overflow-y-auto p-4 space-y-4">
+      <div v-for="message in messages" :key="message.id" :class="{ self: message.isFromMe }">
+        <div
+          :class="
+            message.isFromMe
+              ? 'bg-blue-500 text-white rounded-xl p-3 align-right'
+              : 'bg-gray-200 rounded-xl p-3'
+          "
+        >
+          {{ message.content }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Chat Input Area -->
+    <div class="border-t p-4">
+      <div class="flex items-center">
+        <input
+          type="text"
+          class="flex-grow p-3 rounded-lg border"
+          v-model="newMessage"
+          placeholder="Type a message..."
+        />
+        <button @click="sendMessage" class="ml-4 px-5 py-2 bg-blue-500 text-white rounded-lg">
+          Send
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
-<!-- 나머지 <script> 부분은 그대로 유지 -->
+<script>
+import api from '@/axios.js'
 
-  
-  <script>
-  export default {
-    data() {
-      return {
-        socket: null,
-        messages: [],
-        inputMessage: ''
-      };
-    },
-    mounted() {
-      // 웹소켓 연결
-      this.socket = new WebSocket('ws://localhost:8080/chat');
+export default {
+  name: 'ChatRoom',
+  props: {
+    chatInfo: Object
+  },
+  data() {
+    return {
+      messages: [],
+      newMessage: '',
+      socket: null
+    }
+  },
+  async created() {
+    try {
+      const response = await api.get('/api/chat/messages') // API endpoint from Spring
+      this.messages = response.data
+    } catch (error) {
+      console.error('Failed to fetch messages:', error)
+    }
+
+    this.initializeWebSocket()
+  },
+  beforeUnmount() {
+    if (this.socket) {
+      this.socket.close()
+    }
+  },
+  methods: {
+    initializeWebSocket() {
+      this.socket = new WebSocket('ws://localhost:8080/chat') // WebSocketHandler endpoint
+
       this.socket.onmessage = (event) => {
-        const message = JSON.parse(event.data);
-        this.receiveMessage(message);
-      };
-    },
-    methods: {
-      receiveMessage(message) {
-        this.messages.push(message);
-      },
-      formatDate(timestamp) {
-        const date = new Date(timestamp);
-        return `${date.getHours()}:${date.getMinutes()}`;
-      },
-      sendMessage() {
-        if (this.inputMessage.trim()) {
-          const message = {
-            // 여기에 필요한 메시지 형식에 맞게 구성
-            content: this.inputMessage
-          };
-          this.socket.send(JSON.stringify(message));
-          this.inputMessage = '';
+        const message = JSON.parse(event.data)
+        this.messages.push(message)
+      }
+
+      this.socket.onclose = (event) => {
+        if (event.wasClean) {
+          console.log(`Connection closed cleanly, code=${event.code}, reason=${event.reason}`)
+        } else {
+          console.error('Connection died')
         }
+      }
+
+      this.socket.onerror = (error) => {
+        console.error(`WebSocket Error: ${error}`)
+      }
+    },
+    async sendMessage() {
+      if (this.newMessage.trim()) {
+        const messageData = {
+          type: 'CHAT',
+          chatId: this.chatInfo.chatId,
+          senderUserId: this.chatInfo.userId,
+          content: this.newMessage
+        }
+
+        this.socket.send(JSON.stringify(messageData))
+        this.newMessage = ''
       }
     }
   }
-  </script>
-  
+}
+</script>

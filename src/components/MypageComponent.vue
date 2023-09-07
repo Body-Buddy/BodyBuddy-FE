@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto p-6 space-y-6 mt-10">
+  <div class="max-w-xl mx-auto space-y-6 mt-10">
     <h1 class="text-2xl font-bold">마이페이지</h1>
 
     <!-- 프로필 수정 -->

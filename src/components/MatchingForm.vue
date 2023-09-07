@@ -142,9 +142,9 @@ export default {
         let criteriaData = {}
 
         for (let category of this.categories) {
-          if (category.name === '성별') {
+          if (category.name === '내 친구의 성별') {
             criteriaData['preferSameGender'] = category.selected === '동성 친구가 좋아요'
-          } else if (category.name === '나이') {
+          } else if (category.name === '내 친구의 나이') {
             criteriaData['preferSameAgeRange'] = category.selected === '같은 연령대가 좋아요'
           } else if (category.name === '운동 목표') {
             criteriaData['goals'] = category.selected.map((tag) => GoalMapping[tag])
