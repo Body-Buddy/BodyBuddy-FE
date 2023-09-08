@@ -9,6 +9,7 @@ import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
 import LoginComponent from '@/components/LoginComponent.vue';
 import SignupComponent from '@/components/SignupComponent.vue';
+import SocialSignup from '@/components/SocialSignup.vue';
 import MypageComponent from '@/components/MypageComponent.vue';
 import GymSearch from '@/components/GymSearch.vue';
 import ProfileForm from '@/components/ProfileForm.vue';
@@ -25,9 +26,7 @@ const routes = [
       },
       {
         path: '/friends',
-        name: 'FriendList',
-        component: FriendList,
-        props: true
+        component: FriendList
       },
       {
         path: '/chats',
@@ -43,9 +42,7 @@ const routes = [
       },
       {
         path: '/posts/write',
-        name: 'PostForm',
-        component: PostForm,
-        props: true
+        component: PostForm
       },
       {
         path: '/posts/:postId',
@@ -60,26 +57,24 @@ const routes = [
         component: SignupComponent
       },
       {
+        path: '/signup/social',
+        component: SocialSignup
+      },
+      {
         path: '/mypage',
         component: MypageComponent
       },
       {
         path: '/gyms/setup',
-        name: 'GymSearch',
-        component: GymSearch,
-        props: true
+        component: GymSearch
       },
       {
         path: '/profile/setup',
-        name: 'ProfileForm',
-        component: ProfileForm,
-        props: true
+        component: ProfileForm
       },
       {
         path: '/matching/setup',
-        name: 'MatchingForm',
-        component: MatchingForm,
-        props: true
+        component: MatchingForm
       }
     ],
   }

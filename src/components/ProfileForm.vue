@@ -66,16 +66,12 @@
 
 <script>
 import api from '@/axios.js'
+import tokenManager from '../tokenManager'
 
 export default {
-  props: {
-    userId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
+      user: null,
       nickname: '',
       introduction: '',
       profileImage: null,
@@ -83,7 +79,16 @@ export default {
       nicknameError: false
     }
   },
+  mounted() {
+    tokenManager.loadTokenFromCookie()
+    this.getUser()
+  },
   methods: {
+    async getUser() {
+      const response = await api.get('/auth/user')
+      console.log(response.data)
+      this.user = response.data
+    },
     onImageChange(event) {
       const file = event.target.files[0]
       this.profileImage = file
@@ -103,7 +108,7 @@ export default {
       formData.append('file', this.profileImage)
 
       try {
-        await api.put(`/users/${this.userId}/image`, formData, {
+        await api.put(`/users/${this.user.id}/image`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
           }
@@ -113,7 +118,7 @@ export default {
       }
     },
     async sendProfileData() {
-      await api.put(`/users/${this.userId}/profile`, {
+      await api.put(`/users/${this.user.id}/profile`, {
         nickname: this.nickname,
         introduction: this.introduction
       })
@@ -127,10 +132,7 @@ export default {
         await this.uploadProfileImage()
         await this.sendProfileData()
 
-        this.$router.push({
-          name: 'MatchingForm',
-          params: { userId: this.userId }
-        })
+        this.$router.push('/matching/setup')
       } catch (error) {
         console.error('프로필 저장 중 오류 발생:', error)
       }

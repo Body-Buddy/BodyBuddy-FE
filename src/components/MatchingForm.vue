@@ -46,12 +46,6 @@
 import api from '@/axios.js'
 
 export default {
-  props: {
-    userId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
       categories: [
@@ -92,10 +86,19 @@ export default {
           tags: ['아침', '점심', '저녁', '밤'],
           selected: null
         }
-      ]
+      ],
+      user: null
     }
   },
+  mounted() {
+    this.getUser()
+  },
   methods: {
+    async getUser() {
+      const response = await api.get('/auth/user')
+      console.log(response.data)
+      this.user = response.data
+    },
     selectTag(category, tag) {
       if (Array.isArray(category.selected)) {
         if (category.selected.includes(tag)) {
@@ -156,17 +159,14 @@ export default {
             criteriaData['exerciseTime'] = TimeMapping[category.selected]
           }
         }
-        const response = await api.post(`/users/${this.userId}/criteria`, criteriaData)
+        const response = await api.post(`/users/${this.user.id}/criteria`, criteriaData)
         console.log(response)
         if (response.status !== 200) {
           window.alert('매칭 기준 저장에 실패했습니다. 다시 시도해주세요.')
           return
         }
 
-        this.$router.push({
-          name: 'FriendList',
-          params: { userId: this.userId }
-        })
+        this.$router.push('/friends')
       } catch (error) {
         console.error('데이터 전송 중 오류 발생:', error)
       }

@@ -47,28 +47,31 @@
 
 <script>
 import api from '@/axios.js'
+import tokenManager from '../tokenManager'
 
 export default {
-  props: {
-    userId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
+      user: null,
       friends: [],
       gyms: [],
       selectedGymId: null
     }
   },
-  mounted() {
+  async mounted() {
+    tokenManager.loadTokenFromCookie()
+    await this.getUser()
     this.fetchUserGyms()
   },
   methods: {
+    async getUser() {
+      const response = await api.get('/auth/user')
+      console.log(response.data)
+      this.user = response.data
+    },
     async fetchUserGyms() {
       try {
-        const response = await api.get(`/users/${this.userId}/gyms`)
+        const response = await api.get(`/users/${this.user.id}/gyms`)
         this.gyms = response.data
         if (this.gyms.length > 0) {
           this.selectedGymId = this.gyms[0].id // 초기값으로 첫 번째 헬스장을 설정
@@ -78,10 +81,10 @@ export default {
         console.error('헬스장 목록을 가져오는 중 오류 발생:', error)
       }
     },
-    async fetchFriendsForSelectedGym() {
+    fetchFriendsForSelectedGym() {
       if (!this.selectedGymId) return
       try {
-        const response = await api.get(`/gyms/${this.selectedGymId}/matches`)
+        const response = api.get(`/gyms/${this.selectedGymId}/matches`)
         this.friends = response.data
         console.log(response.data)
       } catch (error) {

@@ -65,6 +65,7 @@
 
 <script>
 import api from '@/axios.js'
+import tokenManager from '../tokenManager'
 
 export default {
   data() {
@@ -92,21 +93,22 @@ export default {
         })
         window.alert('성공적으로 로그인되었습니다!')
 
-        const userId = response.data.userId
-        const profileExists = response.data.profileExists
-        const token = response.headers.get('Authorization')
+        const user = response.data
+        const accessToken = response.headers.get('Authorization')
 
-        if (token) {
-          localStorage.setItem('jwtToken', token.replace('Bearer ', ''))
+        if (accessToken) {
+          tokenManager.setToken(accessToken.replace('Bearer ', ''));
         }
-
-        if (profileExists) {
-          this.$router.push('/friends')
+        console.log(user)
+        
+        if (!user.hasRegisteredGym) {
+          this.$router.push('/gyms/setup')
+        } else if (!user.hasSetProfile) {
+          this.$router.push('/profile/setup')
+        } else if (!user.hasSetMatchingCriteria) {
+          this.$router.push('/matching/setup')
         } else {
-          this.$router.push({
-            name: 'GymSearch',
-            params: { userId: userId }
-          })
+          this.$router.push('/friends')
         }
       } catch (error) {
         if (error.response.status === 401) {
@@ -115,13 +117,13 @@ export default {
       }
     },
     handleNaverLogin() {
-      window.location.href=`${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/naver`
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/naver`
     },
     handleKakaoLogin() {
-      window.location.href=`${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/kakao`
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/kakao`
     },
     handleGoogleLogin() {
-      window.location.href=`${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/google`
+      window.location.href = `${import.meta.env.VITE_SERVER_URL}/oauth2/authorization/google`
     }
   }
 }

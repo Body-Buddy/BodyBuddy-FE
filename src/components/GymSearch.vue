@@ -89,17 +89,13 @@
 
 <script>
 import api from '@/axios.js'
+import tokenManager from '@/tokenManager.js'
 
 export default {
-  props: {
-    userId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
       query: '',
+      user: null,
       gyms: [],
       myGyms: [],
       latitude: null,
@@ -108,10 +104,17 @@ export default {
       noResults: false
     }
   },
-  mounted() {
+  async mounted() {
+    tokenManager.loadTokenFromCookie()
+    this.getUser()
     this.getUserLocation()
   },
   methods: {
+    async getUser() {
+      const response = await api.get('/auth/user')
+      console.log(response.data)
+      this.user = response.data
+    },
     getUserLocation() {
       // HTML5 Geolocation API 사용
       if (navigator.geolocation) {
@@ -179,7 +182,7 @@ export default {
 
       for (let gym of this.myGyms) {
         try {
-          const response = await api.post(`/users/${this.userId}/gyms`, gym)
+          const response = await api.post(`/users/${this.user.id}/gyms`, gym)
           console.log(response)
           if (response.status !== 200) {
             window.alert('이미 등록된 헬스장입니다.')
@@ -190,10 +193,7 @@ export default {
         }
       }
       alert('나의 헬스장으로 등록되었습니다.')
-      this.$router.push({
-        name: 'ProfileForm',
-        params: { userId: this.userId }
-      })
+      this.$router.push('/profile/setup')
     }
   }
 }
