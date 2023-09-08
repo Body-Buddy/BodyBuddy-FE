@@ -44,6 +44,7 @@
 
 <script>
 import api from '@/axios.js'
+import tokenManager from '@/tokenManager.js'
 
 export default {
   data() {
@@ -91,12 +92,12 @@ export default {
     }
   },
   mounted() {
+    tokenManager.loadTokenFromCookie()
     this.getUser()
   },
   methods: {
     async getUser() {
       const response = await api.get('/auth/user')
-      console.log(response.data)
       this.user = response.data
     },
     selectTag(category, tag) {
@@ -141,35 +142,26 @@ export default {
         밤: 'NIGHT'
       }
 
-      try {
-        let criteriaData = {}
+      let criteriaData = {}
 
-        for (let category of this.categories) {
-          if (category.name === '내 친구의 성별') {
-            criteriaData['preferSameGender'] = category.selected === '동성 친구가 좋아요'
-          } else if (category.name === '내 친구의 나이') {
-            criteriaData['preferSameAgeRange'] = category.selected === '같은 연령대가 좋아요'
-          } else if (category.name === '운동 목표') {
-            criteriaData['goals'] = category.selected.map((tag) => GoalMapping[tag])
-          } else if (category.name === '운동 경험') {
-            criteriaData['experience'] = ExperienceMapping[category.selected]
-          } else if (category.name === '운동 강도') {
-            criteriaData['intensity'] = IntensityMapping[category.selected]
-          } else if (category.name === '운동 시간대') {
-            criteriaData['exerciseTime'] = TimeMapping[category.selected]
-          }
+      for (let category of this.categories) {
+        if (category.name === '내 친구의 성별') {
+          criteriaData['preferSameGender'] = category.selected === '동성 친구가 좋아요'
+        } else if (category.name === '내 친구의 나이') {
+          criteriaData['preferSameAgeRange'] = category.selected === '같은 연령대가 좋아요'
+        } else if (category.name === '운동 목표') {
+          criteriaData['goals'] = category.selected.map((tag) => GoalMapping[tag])
+        } else if (category.name === '운동 경험') {
+          criteriaData['experience'] = ExperienceMapping[category.selected]
+        } else if (category.name === '운동 강도') {
+          criteriaData['intensity'] = IntensityMapping[category.selected]
+        } else if (category.name === '운동 시간대') {
+          criteriaData['exerciseTime'] = TimeMapping[category.selected]
         }
-        const response = await api.post(`/users/${this.user.id}/criteria`, criteriaData)
-        console.log(response)
-        if (response.status !== 200) {
-          window.alert('매칭 기준 저장에 실패했습니다. 다시 시도해주세요.')
-          return
-        }
-
-        this.$router.push('/friends')
-      } catch (error) {
-        console.error('데이터 전송 중 오류 발생:', error)
       }
+
+      await api.post(`/users/${this.user.id}/criteria`, criteriaData)
+      this.$router.push('/friends')
     }
   }
 }

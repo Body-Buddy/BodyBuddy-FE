@@ -86,34 +86,27 @@ export default {
         return
       }
 
-      try {
-        const response = await api.post('/users/login', {
-          email: this.email,
-          password: this.password
-        })
-        window.alert('성공적으로 로그인되었습니다!')
+      const response = await api.post('/auth/login', {
+        email: this.email,
+        password: this.password
+      })
+      window.alert('성공적으로 로그인되었습니다!')
 
-        const user = response.data
-        const accessToken = response.headers.get('Authorization')
+      const user = response.data
+      const accessToken = response.headers.get('Authorization')
 
-        if (accessToken) {
-          tokenManager.setToken(accessToken.replace('Bearer ', ''));
-        }
-        console.log(user)
-        
-        if (!user.hasRegisteredGym) {
-          this.$router.push('/gyms/setup')
-        } else if (!user.hasSetProfile) {
-          this.$router.push('/profile/setup')
-        } else if (!user.hasSetMatchingCriteria) {
-          this.$router.push('/matching/setup')
-        } else {
-          this.$router.push('/friends')
-        }
-      } catch (error) {
-        if (error.response.status === 401) {
-          window.alert('로그인 정보가 일치하지 않습니다.')
-        }
+      if (accessToken) {
+        tokenManager.setToken(accessToken.replace('Bearer ', ''))
+      }
+
+      if (!user.hasRegisteredGym) {
+        this.$router.push('/gyms/setup')
+      } else if (!user.hasSetProfile) {
+        this.$router.push('/profile/setup')
+      } else if (!user.hasSetMatchingCriteria) {
+        this.$router.push('/matching/setup')
+      } else {
+        this.$router.push('/friends')
       }
     },
     handleNaverLogin() {

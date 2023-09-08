@@ -86,8 +86,15 @@ export default {
   methods: {
     async getUser() {
       const response = await api.get('/auth/user')
-      console.log(response.data)
       this.user = response.data
+
+      if (this.user.nickname) {
+        this.nickname = this.user.nickname
+      }
+
+      if (this.user.imageUrl) {
+        this.imagePreview = this.user.imageUrl
+      }
     },
     onImageChange(event) {
       const file = event.target.files[0]
@@ -107,18 +114,14 @@ export default {
       const formData = new FormData()
       formData.append('file', this.profileImage)
 
-      try {
-        await api.put(`/users/${this.user.id}/image`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          }
-        })
-      } catch (error) {
-        console.error('프로필 이미지 업로드 중 오류 발생:', error)
-      }
+      await api.put(`/users/${this.user.id}/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
     },
     async sendProfileData() {
-      await api.put(`/users/${this.user.id}/profile`, {
+      await api.post(`/users/${this.user.id}/profile`, {
         nickname: this.nickname,
         introduction: this.introduction
       })
@@ -128,14 +131,11 @@ export default {
         this.nicknameError = true
         return
       }
-      try {
-        await this.uploadProfileImage()
-        await this.sendProfileData()
 
-        this.$router.push('/matching/setup')
-      } catch (error) {
-        console.error('프로필 저장 중 오류 발생:', error)
-      }
+      await this.uploadProfileImage()
+      await this.sendProfileData()
+      
+      this.$router.push('/matching/setup')
     }
   }
 }

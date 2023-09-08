@@ -1,7 +1,9 @@
 <template>
   <div class="max-w-xl mx-auto mt-10">
     <div class="p-8 w-full max-w-md mb-20">
-      <p v-if="user" class="font-bold text-2xl mb-2">{{ user.nickname ? user.nickname : '사용자'}}님, 안녕하세요!</p>
+      <p v-if="user" class="font-bold text-2xl mb-2">
+        {{ user.nickname ? user.nickname : '사용자' }}님, 안녕하세요!
+      </p>
       <p class="text-gray-600">필수 정보를 입력하여 가입을 완료해주세요.</p>
       <div class="my-10">
         <label class="block text-gray-700 text-sm font-bold mb-2">성별</label>
@@ -61,22 +63,11 @@ export default {
       this.user = response.data
     },
     async handleSocialSignup() {
-      try {
-        const response = await api.post('/auth/social-signup', {
-          gender: this.gender,
-          birthDate: this.birthDate
-        })
-        console.log(response)
-
-        if (response.status === 200) {
-          this.$router.push('/gyms/setup')
-        } else {
-          alert('필수 정보를 모두 입력해주세요.')
-        }
-      } catch (error) {
-        console.error('Error during signup:', error)
-        alert('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
-      }
+      await api.post('/auth/social-signup', {
+        gender: this.gender,
+        birthDate: this.birthDate
+      })
+      this.$router.push('/gyms/setup')
     }
   }
 }

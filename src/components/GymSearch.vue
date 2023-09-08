@@ -112,7 +112,6 @@ export default {
   methods: {
     async getUser() {
       const response = await api.get('/auth/user')
-      console.log(response.data)
       this.user = response.data
     },
     getUserLocation() {
@@ -150,18 +149,13 @@ export default {
         params.y = this.latitude
       }
 
-      try {
-        const response = await api.get('/gyms/search', { params })
-        if (response.data && response.data.length > 0) {
-          this.gyms = response.data
-          this.noResults = false
-        } else {
-          this.gyms = []
-          this.noResults = true
-        }
-        console.log(response)
-      } catch (error) {
-        console.error('API 호출 중 오류 발생:', error)
+      const response = await api.get('/gyms/search', { params })
+      if (response.data && response.data.length > 0) {
+        this.gyms = response.data
+        this.noResults = false
+      } else {
+        this.gyms = []
+        this.noResults = true
       }
     },
 
@@ -181,18 +175,9 @@ export default {
       }
 
       for (let gym of this.myGyms) {
-        try {
-          const response = await api.post(`/users/${this.user.id}/gyms`, gym)
-          console.log(response)
-          if (response.status !== 200) {
-            window.alert('이미 등록된 헬스장입니다.')
-          }
-        } catch (error) {
-          console.error('API 호출 중 오류 발생:', error)
-          return
-        }
+        await api.post(`/users/${this.user.id}/gyms`, gym)
       }
-      alert('나의 헬스장으로 등록되었습니다.')
+
       this.$router.push('/profile/setup')
     }
   }

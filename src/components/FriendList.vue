@@ -66,30 +66,20 @@ export default {
   methods: {
     async getUser() {
       const response = await api.get('/auth/user')
-      console.log(response.data)
       this.user = response.data
     },
     async fetchUserGyms() {
-      try {
-        const response = await api.get(`/users/${this.user.id}/gyms`)
-        this.gyms = response.data
-        if (this.gyms.length > 0) {
-          this.selectedGymId = this.gyms[0].id // 초기값으로 첫 번째 헬스장을 설정
-          this.fetchFriendsForSelectedGym()
-        }
-      } catch (error) {
-        console.error('헬스장 목록을 가져오는 중 오류 발생:', error)
+      const response = await api.get(`/users/${this.user.id}/gyms`)
+      this.gyms = response.data
+      if (this.gyms.length > 0) {
+        this.selectedGymId = this.gyms[0].id
+        this.fetchFriendsForSelectedGym()
       }
     },
-    fetchFriendsForSelectedGym() {
+    async fetchFriendsForSelectedGym() {
       if (!this.selectedGymId) return
-      try {
-        const response = api.get(`/gyms/${this.selectedGymId}/matches`)
-        this.friends = response.data
-        console.log(response.data)
-      } catch (error) {
-        console.error('친구 목록을 가져오는 중 오류 발생:', error)
-      }
+      const response = await api.get(`/gyms/${this.selectedGymId}/matches`)
+      this.friends = response.data
     },
     startChat(friendId) {
       this.$router.push(`/chats/private/${friendId}`)
