@@ -42,16 +42,22 @@
 </template>
 
 <script>
+import tokenManager from '../tokenManager';
+
 export default {
   name: 'AppLayout',
+  mounted() {
+    tokenManager.loadTokenFromCookie()
+    this.token = tokenManager.getToken()
+  },
   data() {
     return {
-      authToken: localStorage.getItem('jwtToken')
+      token: null
     }
   },
   computed: {
     authLink() {
-      return this.authToken
+      return this.token
         ? { path: "/mypage", text: "마이페이지" }
         : { path: "/login", text: "로그인" };
     }
