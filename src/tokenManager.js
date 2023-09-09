@@ -1,20 +1,32 @@
 import Cookies from 'js-cookie'
 
 let accessToken = null
+let refreshToken = null
 
 const tokenManager = {
-  setToken: function (token) {
+  setAccessToken: function (token) {
     accessToken = token
   },
 
-  getToken: function () {
+  getAccessToken: function () {
     return accessToken
   },
 
-  loadTokenFromCookie: function () {
+  loadAccessToken: function () {
     const token = Cookies.get('accessToken')
     if (token) {
       accessToken = token 
+    }
+  },
+
+  getRefreshToken: function () {
+    return refreshToken
+  },
+
+  loadRefreshToken: function () {
+    const token = Cookies.get('refreshToken')
+    if(token) {
+      refreshToken = token
     }
   }
 }

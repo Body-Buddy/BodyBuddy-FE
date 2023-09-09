@@ -47,8 +47,8 @@ import tokenManager from '../tokenManager';
 export default {
   name: 'AppLayout',
   mounted() {
-    tokenManager.loadTokenFromCookie()
-    this.token = tokenManager.getToken()
+    tokenManager.loadAccessToken()
+    this.token = tokenManager.getAccessToken()
   },
   data() {
     return {

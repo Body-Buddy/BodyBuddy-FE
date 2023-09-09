@@ -80,7 +80,7 @@ export default {
     }
   },
   mounted() {
-    tokenManager.loadTokenFromCookie()
+    tokenManager.loadAccessToken()
     this.getUser()
   },
   methods: {

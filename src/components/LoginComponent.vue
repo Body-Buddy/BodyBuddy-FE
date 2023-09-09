@@ -96,7 +96,7 @@ export default {
       const accessToken = response.headers.get('Authorization')
 
       if (accessToken) {
-        tokenManager.setToken(accessToken.replace('Bearer ', ''))
+        tokenManager.setAccessToken(accessToken.replace('Bearer ', ''))
       }
 
       if (!user.hasRegisteredGym) {

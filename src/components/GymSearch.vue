@@ -105,7 +105,7 @@ export default {
     }
   },
   async mounted() {
-    tokenManager.loadTokenFromCookie()
+    tokenManager.loadAccessToken()
     this.getUser()
     this.getUserLocation()
   },

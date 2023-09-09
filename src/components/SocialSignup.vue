@@ -54,7 +54,7 @@ export default {
     }
   },
   async mounted() {
-    tokenManager.loadTokenFromCookie()
+    tokenManager.loadAccessToken()
     await this.getUser()
   },
   methods: {
