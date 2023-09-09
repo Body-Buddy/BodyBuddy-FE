@@ -30,6 +30,10 @@
             :class="{ 'text-gray-600': $route.path !== authLink.path }"
             >{{ authLink.text }}</router-link
           >
+          <!-- 로그아웃 버튼 추가 -->
+          <button v-if="showLogout" @click="logout" class="text-gray-800 hover:text-gray-600">
+            로그아웃
+          </button>
         </div>
       </div>
     </nav>
@@ -42,24 +46,40 @@
 </template>
 
 <script>
-import tokenManager from '../tokenManager';
+import api from '@/axios.js'
+import tokenManager from '../tokenManager'
 
 export default {
-  name: 'AppLayout',
+  data() {
+    return {
+      token: null,
+      showLogout: false
+    }
+  },
   mounted() {
     tokenManager.loadAccessToken()
     this.token = tokenManager.getAccessToken()
+    this.showLogout = !!this.token
   },
-  data() {
-    return {
-      token: null
+  methods: {
+    async logout() {
+      await api.post('/auth/logout', { refreshToken: tokenManager.getRefreshToken() })
+      this.deleteCookie('accessToken')
+      this.deleteCookie('refreshToken')
+
+      this.$router.push('/login')
+      this.showLogout = false
+      this.token = null
+    },
+    deleteCookie(name) {
+      document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
     }
   },
   computed: {
     authLink() {
       return this.token
-        ? { path: "/mypage", text: "마이페이지" }
-        : { path: "/login", text: "로그인" };
+        ? { path: '/mypage', text: '마이페이지' }
+        : { path: '/login', text: '로그인' }
     }
   }
 }
