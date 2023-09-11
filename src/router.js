@@ -3,14 +3,14 @@ import AppLayout from '@/components/AppLayout.vue';
 import MainPage from '@/components/MainPage.vue';
 import FriendList from '@/components/FriendList.vue';
 import ChatRoom from '@/components/ChatRoom.vue';
-import ChatList from '@/components/ChatList.vue';
-import PostComponent from '@/components/PostComponent.vue';
+import ChatDashboard from '@/components/ChatDashboard.vue';
+import PostItem from '@/components/PostItem.vue';
 import PostForm from '@/components/PostForm.vue';
 import PostList from '@/components/PostList.vue';
-import LoginComponent from '@/components/LoginComponent.vue';
-import SignupComponent from '@/components/SignupComponent.vue';
-import SocialSignup from '@/components/SocialSignup.vue';
-import MypageComponent from '@/components/MypageComponent.vue';
+import UserLoginForm from '@/components/UserLoginForm.vue';
+import UserSignupForm from '@/components/UserSignupForm.vue';
+import SocialSignupForm from '@/components/SocialSignupForm.vue';
+import UserMypage from '@/components/UserMypage.vue';
 import GymSearch from '@/components/GymSearch.vue';
 import ProfileForm from '@/components/ProfileForm.vue';
 import MatchingForm from '@/components/MatchingForm.vue';
@@ -30,7 +30,7 @@ const routes = [
       },
       {
         path: '/chats',
-        component: ChatList,
+        component: ChatDashboard,
       },
       {
         path: '/chats/:chatId',
@@ -46,23 +46,23 @@ const routes = [
       },
       {
         path: '/posts/:postId',
-        component: PostComponent
+        component: PostItem
       },
       {
         path: '/login',
-        component: LoginComponent
+        component: UserLoginForm
       },
       {
         path: '/signup',
-        component: SignupComponent
+        component: UserSignupForm
       },
       {
         path: '/signup/social',
-        component: SocialSignup
+        component: SocialSignupForm
       },
       {
         path: '/mypage',
-        component: MypageComponent
+        component: UserMypage
       },
       {
         path: '/gyms/setup',
