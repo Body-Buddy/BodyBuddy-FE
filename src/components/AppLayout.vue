@@ -3,7 +3,21 @@
     <!-- 상단 네비게이션 바 -->
     <nav class="p-4 shadow-md">
       <div class="mx-6 mx-auto flex justify-between items-center">
-        <router-link to="/" class="text-xl font-bold text-gray-800 ml-2">💪🏻 바디버디</router-link>
+        <div class="flex items-center space-x-4">
+          <router-link to="/" class="text-xl font-bold text-gray-800 ml-2">💪🏻 바디버디</router-link>
+
+          <!-- 헬스장 선택 드롭다운 -->
+          <div class="relative">
+            <select
+              v-model="selectedGymId"
+              @change="handleGymChange"
+              class="w-48 p-2 bg-white rounded focus:outline-none focus:ring focus:ring-opacity-50 hover:bg-gray-100 appearance-none"
+            >
+              <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
+            </select>
+            <i class="fa-solid fa-chevron-down absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600"></i>
+          </div>
+        </div>
 
         <div class="space-x-10 mr-10">
           <router-link
@@ -30,7 +44,6 @@
             :class="{ 'text-gray-600': $route.path !== authLink.path }"
             >{{ authLink.text }}</router-link
           >
-          <!-- 로그아웃 버튼 추가 -->
           <button v-if="showLogout" @click="logout" class="text-gray-800 hover:text-gray-600">
             로그아웃
           </button>
@@ -48,18 +61,22 @@
 <script>
 import api from '@/axios.js'
 import tokenManager from '../tokenManager'
+import { useEventBus } from '../eventBus'
 
 export default {
   data() {
     return {
       token: null,
-      showLogout: false
+      showLogout: false,
+      gyms: [],
+      selectedGymId: null
     }
   },
   mounted() {
     tokenManager.loadAccessToken()
     this.token = tokenManager.getAccessToken()
     this.showLogout = !!this.token
+    this.fetchUserGyms()
   },
   methods: {
     async logout() {
@@ -73,6 +90,16 @@ export default {
     },
     deleteCookie(name) {
       document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+    },
+    async fetchUserGyms() {
+      const response = await api.get(`/users/${this.userId}/gyms`)
+      this.gyms = response.data
+      if (this.gyms.length > 0) {
+        this.selectedGymId = this.gyms[0].id
+      }
+    },
+    handleGymChange() {
+      useEventBus().emit('gymChanged', this.selectedGymId)
     }
   },
   computed: {

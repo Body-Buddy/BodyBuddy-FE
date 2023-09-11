@@ -33,7 +33,7 @@ const routes = [
         component: ChatList,
       },
       {
-        path: '/chats/private/:chatId',
+        path: '/chats/:chatId',
         component: ChatRoom
       },
       {
