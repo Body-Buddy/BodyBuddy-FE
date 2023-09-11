@@ -95,15 +95,9 @@
 </template>
 
 <script>
-import api from '@/axios.js'
+import api from '../api/axios.js'
 
 export default {
-  props: {
-    gymId: {
-      type: String,
-      required: true
-    }
-  },
   data() {
     return {
       title: '',
@@ -113,19 +107,25 @@ export default {
       categories: []
     }
   },
+  computed: {
+    selectedGymId() {
+      return this.$store.getters.getSelectedGymId
+    }
+  },
+  watch: {
+    selectedGymId(newGymId, oldGymId) {
+      if (newGymId !== oldGymId) {
+        this.fetchChatsForSelectedGym()
+      }
+    }
+  },
   mounted() {
     this.fetchCategories()
   },
   methods: {
-    fetchCategories() {
-      api
-        .get('/categories')
-        .then((response) => {
-          this.categories = response.data
-        })
-        .catch((error) => {
-          console.error('카테고리를 불러오는 데 실패했습니다.', error)
-        })
+    async fetchCategories() {
+      const response = await api.get('/categories')
+      this.categories = response.data
     },
     addMedia() {
       this.$refs.mediaInput.click()
@@ -146,7 +146,7 @@ export default {
         title: this.title,
         content: this.content,
         category: this.category,
-        gymId: this.gymId
+        gymId: this.selectedGymId
       })
 
       if (response.status == 201) {

@@ -64,8 +64,8 @@
 </template>
 
 <script>
-import api from '@/axios.js'
-import tokenManager from '../tokenManager'
+import api from '../api/axios.js'
+import tokenManager from '../utils/tokenManager.js'
 
 export default {
   data() {

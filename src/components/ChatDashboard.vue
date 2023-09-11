@@ -24,8 +24,7 @@
 </template>
 
 <script>
-import api from '@/axios.js'
-import { useEventBus } from '../eventBus'
+import api from '../api/axios.js'
 import ChatItem from './ChatItem.vue'
 import ChatRoom from './ChatRoom.vue'
 
@@ -36,28 +35,22 @@ export default {
   },
   data() {
     return {
-      chats: [],
-      gyms: [],
-      selectedGymId: null
+      chats: []
     }
   },
-  mounted() {
-    this.initializeEventListeners()
+  computed: {
+    selectedGymId() {
+      return this.$store.getters.getSelectedGymId
+    }
   },
-  beforeUnmount() {
-    this.removeEventListeners()
+  watch: {
+    selectedGymId(newGymId, oldGymId) {
+      if (newGymId !== oldGymId) {
+        this.fetchChatsForSelectedGym()
+      }
+    }
   },
   methods: {
-    initializeEventListeners() {
-      useEventBus().on('gymChanged', this.onGymChanged)
-    },
-    removeEventListeners() {
-      useEventBus().off('gymChanged', this.onGymChanged)
-    },
-    onGymChanged(newGymId) {
-      this.selectedGymId = newGymId
-      this.fetchChatsForSelectedGym()
-    },
     async fetchChatsForSelectedGym() {
       if (!this.selectedGymId) return
 

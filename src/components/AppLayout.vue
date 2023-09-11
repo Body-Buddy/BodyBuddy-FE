@@ -9,13 +9,15 @@
           <!-- 헬스장 선택 드롭다운 -->
           <div class="relative">
             <select
-              v-model="selectedGymId"
-              @change="handleGymChange"
+              :value="selectedGymId"
+              @input="handleGymChange"
               class="w-48 p-2 bg-white rounded focus:outline-none focus:ring focus:ring-opacity-50 hover:bg-gray-100 appearance-none"
             >
               <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
             </select>
-            <i class="fa-solid fa-chevron-down absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600"></i>
+            <i
+              class="fa-solid fa-chevron-down absolute top-1/2 right-3 transform -translate-y-1/2 text-gray-600"
+            ></i>
           </div>
         </div>
 
@@ -59,24 +61,34 @@
 </template>
 
 <script>
-import api from '@/axios.js'
-import tokenManager from '../tokenManager'
-import { useEventBus } from '../eventBus'
+import api from '../api/axios.js'
+import tokenManager from '../utils/tokenManager.js'
+import { mapState } from 'vuex'
 
 export default {
   data() {
     return {
       token: null,
       showLogout: false,
-      gyms: [],
-      selectedGymId: null
+      gyms: []
     }
   },
-  mounted() {
+  computed: {
+    ...mapState(['selectedGymId']),
+    authLink() {
+      return this.token
+        ? { path: '/mypage', text: '마이페이지' }
+        : { path: '/login', text: '로그인' }
+    }
+  },
+  async mounted() {
     tokenManager.loadAccessToken()
     this.token = tokenManager.getAccessToken()
     this.showLogout = !!this.token
-    this.fetchUserGyms()
+    await this.fetchUserGyms()
+    if (this.selectedGymId === null && this.gyms.length > 0) {
+      this.$store.dispatch('updateSelectedGymId', this.gyms[0].id)
+    }
   },
   methods: {
     async logout() {
@@ -94,19 +106,9 @@ export default {
     async fetchUserGyms() {
       const response = await api.get(`/users/${this.userId}/gyms`)
       this.gyms = response.data
-      if (this.gyms.length > 0) {
-        this.selectedGymId = this.gyms[0].id
-      }
     },
     handleGymChange() {
-      useEventBus().emit('gymChanged', this.selectedGymId)
-    }
-  },
-  computed: {
-    authLink() {
-      return this.token
-        ? { path: '/mypage', text: '마이페이지' }
-        : { path: '/login', text: '로그인' }
+      this.$store.dispatch('updateSelectedGymId', this.selectedGymId)
     }
   }
 }

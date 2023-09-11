@@ -8,10 +8,8 @@
 </template>
 
 <script>
-import api from '@/axios.js'
-import tokenManager from '../tokenManager'
-import { useEventBus } from '../eventBus'
-import FriendProfile from '@/components/FriendProfile.vue'
+import api from '../api/axios.js'
+import FriendProfile from './FriendProfile.vue'
 
 export default {
   components: {
@@ -19,37 +17,29 @@ export default {
   },
   data() {
     return {
-      user: null,
-      selectedGymId: null,
       friends: []
     }
   },
-  async mounted() {
-    this.initializeUser()
-    this.initializeEventListeners()
+  computed: {
+    selectedGymId() {
+      return this.$store.getters.getSelectedGymId
+    },
+    userId() {
+      return this.$store.state.userId
+    }
   },
-  beforeUnmount() {
-    this.removeEventListeners()
+  watch: {
+    selectedGymId(newGymId, oldGymId) {
+      if (newGymId !== oldGymId) {
+        this.fetchFriendsForSelectedGym()
+      }
+    }
+  },
+  async mounted() {
+    await this.$store.dispatch('updateUserInfo')
+    this.fetchFriendsForSelectedGym()
   },
   methods: {
-    async initializeUser() {
-      tokenManager.loadTokenFromCookie()
-      await this.getUserInfo()
-    },
-    initializeEventListeners() {
-      useEventBus().on('gymChanged', this.onGymChanged)
-    },
-    removeEventListeners() {
-      useEventBus().off('gymChanged', this.onGymChanged)
-    },
-    async getUserInfo() {
-      const response = await api.get('/auth/user')
-      this.user = response.data
-    },
-    onGymChanged(newGymId) {
-      this.selectedGymId = newGymId
-      this.fetchFriendsForSelectedGym()
-    },
     async fetchFriendsForSelectedGym() {
       if (!this.selectedGymId) return
       const response = await api.get(`/gyms/${this.selectedGymId}/matches`)

@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import api from '@/axios.js'
+import api from '../api/axios.js'
 
 export default {
   name: 'ChatRoom',
