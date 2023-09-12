@@ -1,8 +1,8 @@
 <template>
   <div class="max-w-xl mx-auto mt-10">
     <div class="p-8 w-full max-w-md mb-20">
-      <p v-if="user" class="font-bold text-2xl mb-2">
-        {{ user.nickname ? user.nickname : '사용자' }}님, 안녕하세요!
+      <p class="font-bold text-2xl mb-2">
+        {{ nickname ? nickname : '사용자' }}님, 안녕하세요!
       </p>
       <p class="text-gray-600">필수 정보를 입력하여 가입을 완료해주세요.</p>
       <div class="my-10">
@@ -43,26 +43,21 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager'
 
 export default {
   data() {
     return {
-      user: null,
       gender: '',
-      birthDate: ''
+      birthDate: '',
+      nickname: this.$store.getters.getUser.nickname
     }
   },
-  async mounted() {
-    tokenManager.loadAccessToken()
-    await this.getUser()
-  },
   methods: {
-    async getUser() {
-      const response = await api.get('/auth/user')
-      this.user = response.data
-    },
     async handleSocialSignup() {
+      if(this.gender === '' || this.birthDate === '') {
+        alert('필수 정보를 입력해주세요.')
+        return
+      }
       await api.post('/auth/social-signup', {
         gender: this.gender,
         birthDate: this.birthDate

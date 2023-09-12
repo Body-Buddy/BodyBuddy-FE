@@ -102,8 +102,8 @@ export default {
     return {
       title: '',
       content: '',
-      mediaFiles: [],
       category: '',
+      mediaFiles: [],
       categories: []
     }
   },
@@ -146,6 +146,7 @@ export default {
         title: this.title,
         content: this.content,
         category: this.category,
+        mediaFiles: this.mediaFiles,
         gymId: this.selectedGymId
       })
 

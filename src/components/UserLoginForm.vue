@@ -65,7 +65,6 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager.js'
 
 export default {
   data() {
@@ -76,13 +75,8 @@ export default {
   },
   methods: {
     async handleLogin() {
-      if (this.email === '') {
-        alert('이메일을 입력해주세요.')
-        return
-      }
-
-      if (this.password === '') {
-        alert('비밀번호를 입력해주세요.')
+      if (this.email === '' || this.password === '') {
+        window.alert('이메일과 비밀번호를 입력해주세요!')
         return
       }
 
@@ -96,7 +90,8 @@ export default {
       const accessToken = response.headers.get('Authorization')
 
       if (accessToken) {
-        tokenManager.setAccessToken(accessToken.replace('Bearer ', ''))
+        this.$store.commit('setUser', user)
+        this.$store.commit('setAccessToken', accessToken.replace('Bearer ', ''))
       }
 
       if (!user.hasRegisteredGym) {

@@ -66,36 +66,27 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager'
 
 export default {
+  computed: {
+    user() {
+      return this.$store.getters.getUser
+    },
+    nickname() {
+      return this.user?.nickname || ''
+    },
+    imagePreview() {
+      return this.user?.profileImage || ''
+    }
+  },
   data() {
     return {
-      user: null,
-      nickname: '',
       introduction: '',
       profileImage: null,
-      imagePreview: null,
       nicknameError: false
     }
   },
-  mounted() {
-    tokenManager.loadAccessToken()
-    this.getUser()
-  },
   methods: {
-    async getUser() {
-      const response = await api.get('/auth/user')
-      this.user = response.data
-
-      if (this.user.nickname) {
-        this.nickname = this.user.nickname
-      }
-
-      if (this.user.imageUrl) {
-        this.imagePreview = this.user.imageUrl
-      }
-    },
     onImageChange(event) {
       const file = event.target.files[0]
       this.profileImage = file
@@ -134,7 +125,7 @@ export default {
 
       await this.uploadProfileImage()
       await this.sendProfileData()
-      
+
       this.$router.push('/matching/setup')
     }
   }

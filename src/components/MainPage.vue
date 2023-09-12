@@ -30,9 +30,9 @@ export default {
   },
   methods: {
     gotoFriendSearch() {
-      const token = localStorage.getItem('jwtToken')
+      const accessToken = this.$store.getters.getAccessToken
 
-      if(token) {
+      if(accessToken) {
         this.$router.push('/friends')
       } else {
         this.$router.push('/login')

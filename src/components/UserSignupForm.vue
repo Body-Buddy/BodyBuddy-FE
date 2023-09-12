@@ -138,61 +138,48 @@ export default {
 
     async sendEmailCode() {
       this.emailCodeSent = true
-      try {
-        const response = await api.post('/email-verification/request', {
-          email: this.email
-        })
-        console.log(response)
 
-        if (response.status !== 200) {
-          this.emailCodeSent = false
-          window.alert('이메일 전송에 실패했습니다. 올바른 이메일을 입력해주세요.')
-        }
-      } catch (error) {
+      const response = await api.post('/email-verification/request', {
+        email: this.email
+      })
+
+      if (response.status === 200) {
+        window.alert('이메일이 전송되었습니다!')
+      } else {
         this.emailCodeSent = false
-        console.error('Error sending email:', error)
-        window.alert('이메일 전송 중 문제가 발생했습니다. 다시 시도해주세요.')
       }
     },
     async verifyEmailCode() {
-      try {
-        const response = await api.post('/email-verification/confirm', {
-          email: this.email,
-          code: this.emailCode
-        })
-        console.log(response)
+      const response = await api.post('/email-verification/confirm', {
+        email: this.email,
+        code: this.emailCode
+      })
 
-        if (response.status === 200) {
-          window.alert('이메일 인증이 완료되었습니다!')
-          this.isEmailVerified = true
-        } else {
-          window.alert('인증 코드가 올바르지 않습니다.')
-        }
-      } catch (error) {
-        console.error('Error verifying email code:', error)
-        window.alert('이메일 인증 중 문제가 발생했습니다. 다시 시도해주세요.')
+      if (response.status === 200) {
+        window.alert('이메일 인증이 완료되었습니다!')
+        this.isEmailVerified = true
       }
     },
     async handleSignup() {
       this.showEmailVerificationError = !this.isEmailVerified
 
-      try {
-        const response = await api.post('/users/signup', {
-          email: this.email,
-          password: this.password,
-          gender: this.gender,
-          birthDate: this.birthDate
-        })
-        console.log(response)
+      if (
+        this.email === '' || this.password === '' ||
+        this.gender === '' || this.birthDate === ''
+      ) {
+        window.alert('모든 항목을 입력해주세요.')
+        return
+      }
 
-        if (response.status === 200) {
-          this.$router.push('/login')
-        } else {
-          alert('필수 정보를 모두 입력해주세요.')
-        }
-      } catch (error) {
-        console.error('Error during signup:', error)
-        alert('회원가입 중 문제가 발생했습니다. 다시 시도해주세요.')
+      const response = await api.post('/users/signup', {
+        email: this.email,
+        password: this.password,
+        gender: this.gender,
+        birthDate: this.birthDate
+      })
+
+      if (response.status === 200) {
+        this.$router.push('/login')
       }
     }
   }

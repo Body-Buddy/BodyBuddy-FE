@@ -44,7 +44,6 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager.js'
 
 export default {
   data() {
@@ -88,18 +87,10 @@ export default {
           selected: null
         }
       ],
-      user: null
+      user: this.$store.getters.getUser
     }
   },
-  mounted() {
-    tokenManager.loadAccessToken()
-    this.getUser()
-  },
   methods: {
-    async getUser() {
-      const response = await api.get('/auth/user')
-      this.user = response.data
-    },
     selectTag(category, tag) {
       if (Array.isArray(category.selected)) {
         if (category.selected.includes(tag)) {

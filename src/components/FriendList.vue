@@ -25,7 +25,7 @@ export default {
       return this.$store.getters.getSelectedGymId
     },
     userId() {
-      return this.$store.state.userId
+      return this.$store.state.user.id
     }
   },
   watch: {

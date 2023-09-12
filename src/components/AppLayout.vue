@@ -7,7 +7,7 @@
           <router-link to="/" class="text-xl font-bold text-gray-800 ml-2">💪🏻 바디버디</router-link>
 
           <!-- 헬스장 선택 드롭다운 -->
-          <div class="relative">
+          <div class="relative" v-if="showGymDropdown">
             <select
               :value="selectedGymId"
               @input="handleGymChange"
@@ -62,7 +62,7 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager.js'
+import Cookies from 'js-cookie'
 import { mapState } from 'vuex'
 
 export default {
@@ -75,6 +75,11 @@ export default {
   },
   computed: {
     ...mapState(['selectedGymId']),
+    showGymDropdown() {
+      return this.$route.path === '/friends' &&
+        this.$router.path === '/chats' &&
+        this.$router.path === '/posts'
+    },
     authLink() {
       return this.token
         ? { path: '/mypage', text: '마이페이지' }
@@ -82,18 +87,21 @@ export default {
     }
   },
   async mounted() {
-    tokenManager.loadAccessToken()
-    this.token = tokenManager.getAccessToken()
+    this.user = this.$store.getters.getUser
+    this.token = this.$store.getters.getAccessToken
     this.showLogout = !!this.token
-    await this.fetchUserGyms()
-    if (this.selectedGymId === null && this.gyms.length > 0) {
-      this.$store.dispatch('updateSelectedGymId', this.gyms[0].id)
+
+    if (this.showGymDropdown) {
+      await this.fetchUserGyms()
+
+      if (this.selectedGymId === null && this.gyms.length > 0) {
+        this.$store.commit('setSelectedGymId', this.gyms[0].id)
+      }
     }
   },
   methods: {
     async logout() {
-      await api.post('/auth/logout', { refreshToken: tokenManager.getRefreshToken() })
-      this.deleteCookie('accessToken')
+      await api.post('/auth/logout', { refreshToken: Cookies.get('refreshToken') })
       this.deleteCookie('refreshToken')
 
       this.$router.push('/login')
@@ -104,7 +112,7 @@ export default {
       document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
     },
     async fetchUserGyms() {
-      const response = await api.get(`/users/${this.userId}/gyms`)
+      const response = await api.get(`/users/${this.user.id}/gyms`)
       this.gyms = response.data
     },
     handleGymChange() {

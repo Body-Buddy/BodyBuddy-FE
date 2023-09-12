@@ -1,32 +1,7 @@
 <template>
   <div class="max-w-xl mx-auto mt-10">
     <div class="flex justify-between items-center mb-6">
-      
-      <div class="flex items-center">
-        <h2 class="text-2xl font-bold">게시판</h2>
-
-        <!-- 헬스장 선택 드롭다운 -->
-        <div class="relative ml-6">
-          <select
-            v-model="selectedGymId"
-            @change="fetchPostsForSelectedGym"
-            class="w-48 appearance-none p-2 border rounded"
-          >
-            <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
-          </select>
-          <div
-            class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700"
-          >
-            <svg
-              class="fill-current h-4 w-4"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-            >
-              <path d="M5.293 9.293L10 14.586l4.707-4.293-.707-.707L10 13.172 6 9.293l-.707.707z" />
-            </svg>
-          </div>
-        </div>
-      </div>
+      <h2 class="text-2xl font-bold">게시판</h2>
 
       <!-- 검색 바 -->
       <div class="relative w-64">
@@ -45,7 +20,13 @@
         글쓰기
       </button>
     </div>
-    <div class="post bg-white p-6 mt-4 rounded-lg shadow-md" v-for="post in posts" :key="post.id">
+
+    <div
+      class="post bg-white p-6 mt-4 rounded-lg shadow-md cursor-pointer"
+      v-for="post in posts"
+      :key="post.id"
+      @click="goToPost(post.id)"
+    >
       <!-- 게시글 내용 -->
       <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
       <p class="mb-4">{{ post.content }}</p>
@@ -78,40 +59,38 @@ export default {
     return {
       posts: [],
       currentPage: 1,
-      gyms: [],
-      selectedGymId: null
+      likedPostIds: []
+    }
+  },
+  computed: {
+    selectedGymId() {
+      return this.$store.getters.getSelectedGymId
+    }
+  },
+  watch: {
+    selectedGymId(newGymId, oldGymId) {
+      if (newGymId !== oldGymId) {
+        this.fetchChatsForSelectedGym()
+      }
     }
   },
   mounted() {
-    this.fetchUserGyms()
+    this.fetchPostsForSelectedGym()
   },
   methods: {
-    async fetchUserGyms() {
-      try {
-        const response = await api.get(`/users/${this.userId}/gyms`)
-        this.gyms = response.data
-        if (this.gyms.length > 0) {
-          this.selectedGymId = this.gyms[0].id
-          this.fetchPostsForSelectedGym()
-        }
-      } catch (error) {
-        console.error('헬스장 목록을 가져오는 중 오류 발생:', error)
-      }
-    },
     async fetchPostsForSelectedGym() {
       if (!this.selectedGymId) return
-      try {
-        const response = await api.get(`/gyms/${this.selectedGymId}/posts`)
-        this.posts = response.data
-      } catch (error) {
-        console.error('게시글 목록을 가져오는 중 오류 발생:', error)
-      }
+      const response = await api.get(`/gyms/${this.selectedGymId}/posts`)
+      this.posts = response.data
     },
     writePost() {
-      this.$router.push({ name: 'PostForm', params: { gymId: this.selectedGymId } })
+      this.$router.push('/posts/write')
     },
     goToPage(pageNumber) {
       this.currentPage = pageNumber
+    },
+    goToPost(postId) {
+      this.$router.push(`/posts/${postId}`)
     }
   }
 }

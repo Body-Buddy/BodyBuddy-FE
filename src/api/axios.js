@@ -1,12 +1,14 @@
 import axios from 'axios'
-import tokenManager from '../utils/tokenManager'
+import store from '@/store'
+import router from '@/router/router'
+import Cookies from 'js-cookie'
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL
 })
 
 const attachTokenToRequest = (config) => {
-  const token = tokenManager.getAccessToken()
+  const token = store.getters.getAccessToken
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
@@ -35,9 +37,12 @@ const handleApiError = async (error) => {
     }
     const isRefreshSuccessful = await handleTokenRefresh()
     if (isRefreshSuccessful) {
-      // 토큰 재발급 후 요청 재시도
-      error.config.headers.Authorization = `Bearer ${tokenManager.getAccessToken()}`
+      error.config.headers.Authorization = `Bearer ${store.getters.getAccessToken}`
       return instance(error.config)
+    } else {
+      window.alert('세션이 만료되었습니다. 다시 로그인해주세요.')
+      store.commit('logout')
+      router.push({ name: 'Login' })
     }
   }
 
@@ -60,14 +65,17 @@ const handleApiError = async (error) => {
 const handleTokenRefresh = async () => {
   try {
     const response = await axios.post('http://localhost:8080/api/auth/reissue', {
-      refreshToken: tokenManager.getRefreshToken()
+      refreshToken: store.getters.getRefreshToken
     })
 
     const newAccessToken = response.headers['authorization']
 
     if (newAccessToken) {
-      tokenManager.setAccessToken(newAccessToken.replace('Bearer ', ''))
-      tokenManager.loadRefreshToken()
+      store.commit('setAccessToken', newAccessToken.replace('Bearer ', ''))
+      const newRefreshToken = Cookies.get('refreshToken')
+      if (newRefreshToken) {
+        store.commit('setRefreshToken', newRefreshToken)
+      }
       return true
     }
   } catch (error) {

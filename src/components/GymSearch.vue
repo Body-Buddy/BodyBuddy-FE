@@ -89,31 +89,24 @@
 
 <script>
 import api from '../api/axios.js'
-import tokenManager from '../utils/tokenManager.js'
 
 export default {
   data() {
     return {
-      query: '',
-      user: null,
-      gyms: [],
-      myGyms: [],
+      user: this.$store.getters.getUser,
       latitude: null,
       longitude: null,
+      query: '', 
+      gyms: [],
+      myGyms: [],
       showSearchResults: true,
       noResults: false
     }
   },
   async mounted() {
-    tokenManager.loadAccessToken()
-    this.getUser()
     this.getUserLocation()
   },
   methods: {
-    async getUser() {
-      const response = await api.get('/auth/user')
-      this.user = response.data
-    },
     getUserLocation() {
       // HTML5 Geolocation API 사용
       if (navigator.geolocation) {

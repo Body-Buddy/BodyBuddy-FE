@@ -1,42 +1,42 @@
 import { createStore } from 'vuex'
 import api from '@/api/axios'
+import Cookies from 'js-cookie'
 
 export default createStore({
   state: {
     selectedGymId: null,
-    userId: null,
-    nickname: null
+    user: null,
+    accessToken: null
   },
   mutations: {
     setSelectedGymId(state, gymId) {
-      state.selectedGymId = gymId;
+      state.selectedGymId = gymId
     },
-    setUserId(state, userId) {
-      state.userId = userId;
+    setUser(state, user) {
+      state.user = user
     },
-    setNickname(state, nickname) {
-      state.nickname = nickname;
+    setAccessToken(state, token) {
+      state.accessToken = token
+    },
+    logout(state) {
+      state.user = null
+      state.accessToken = null
+      Cookies.remove('refreshToken')
     }
   },
   actions: {
     updateSelectedGymId({ commit }, gymId) {
-      commit('setSelectedGymId', gymId);
+      commit('setSelectedGymId', gymId)
     },
-    updateUserId({ commit }, userId) {
-      commit('setUserId', userId);
-    },
-    updateNickname({ commit }, nickname) {
-      commit('setNickname', nickname);
-    },
-    async updateUserInfo({ commit }) {
-      const response = await api.get('/auth/user')
-      commit('setUserId', response.data.id)
-      commit('setNickname', response.data.nickname)
+    async fetchUser({ commit }) {
+      const response = await api.get('/auth/user');
+      commit('setUser', response.data);
     }
   },
   getters: {
-    getSelectedGymId: state => state.selectedGymId,
-    getUserId: state => state.userId,
-    getNickname: state => state.nickname
+    getSelectedGymId: (state) => state.selectedGymId,
+    getUser: (state) => state.user,
+    getAccessToken: (state) => state.accessToken,
+    isAuthenticated: (state) => !!state.accessToken
   }
 })
