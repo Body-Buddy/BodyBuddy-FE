@@ -124,7 +124,7 @@ const router = createRouter({
   routes
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   if (
     from.path === '/oauth2/redirect' ||
     to.path === '/signup/social' ||
@@ -143,7 +143,9 @@ router.beforeEach((to, from, next) => {
       return
     }
 
+    await store.dispatch('fetchUser')
     const user = store.getters.getUser
+    
     if (user.needSocialSignup) {
       next('/signup/social')
     } else if (!user.hasRegisteredGym) {

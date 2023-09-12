@@ -68,19 +68,11 @@
 import api from '../api/axios.js'
 
 export default {
-  computed: {
-    user() {
-      return this.$store.getters.getUser
-    },
-    nickname() {
-      return this.user?.nickname || ''
-    },
-    imagePreview() {
-      return this.user?.profileImage || ''
-    }
-  },
   data() {
     return {
+      user: this.$store.getters.getUser,
+      nickname: this.user?.nickname || '',
+      imagePreview: this.user?.profileImage || '',
       introduction: '',
       profileImage: null,
       nicknameError: false
