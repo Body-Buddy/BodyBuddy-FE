@@ -22,7 +22,7 @@ export default {
   },
   methods: {
     startChatWithFriend() {
-      this.$emit('startChat', this.friend.userId)
+      this.$emit('startChat', this.friend.id)
     }
   }
 }

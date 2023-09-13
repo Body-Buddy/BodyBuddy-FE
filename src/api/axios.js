@@ -62,20 +62,16 @@ const handleApiError = async (error) => {
   return Promise.reject(error)
 }
 
-const handleTokenRefresh = async () => {
+export const handleTokenRefresh = async () => {
   try {
     const response = await axios.post('http://localhost:8080/api/auth/reissue', {
-      refreshToken: store.getters.getRefreshToken
+      refreshToken: Cookies.get('refreshToken')
     })
 
     const newAccessToken = response.headers['authorization']
 
     if (newAccessToken) {
       store.commit('setAccessToken', newAccessToken.replace('Bearer ', ''))
-      const newRefreshToken = Cookies.get('refreshToken')
-      if (newRefreshToken) {
-        store.commit('setRefreshToken', newRefreshToken)
-      }
       return true
     }
   } catch (error) {

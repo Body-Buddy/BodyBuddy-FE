@@ -16,7 +16,7 @@
     </div>
 
     <!-- 채팅방 -->
-    <div class="w-2/3 h-full p-4 bg-gray-100">
+    <div class="w-2/3 h-full p-4 bg-gray-100 shadow-inner">
       <chat-room v-if="selectedChat" :chatId="selectedChatId"></chat-room>
       <div v-else class="text-center text-xl text-gray-400 mt-20">채팅을 선택하여 시작하세요!</div>
     </div>

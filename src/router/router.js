@@ -16,6 +16,7 @@ import GymSearch from '@/components/GymSearch.vue'
 import ProfileForm from '@/components/ProfileForm.vue'
 import MatchingForm from '@/components/MatchingForm.vue'
 import store from '@/store'
+import { handleTokenRefresh } from '../api/axios'
 
 const routes = [
   {
@@ -138,6 +139,12 @@ router.beforeEach(async (to, from, next) => {
 
   if (to.matched.some((record) => record.meta.requiresAuth)) {
     if (!store.getters.isAuthenticated) {
+      const isRefreshSuccessful = await handleTokenRefresh()
+      if (isRefreshSuccessful) {
+        next()
+        return
+      }
+
       window.alert('로그인이 필요한 페이지입니다.')
       next('/login')
       return
@@ -145,7 +152,7 @@ router.beforeEach(async (to, from, next) => {
 
     await store.dispatch('fetchUser')
     const user = store.getters.getUser
-    
+
     if (user.needSocialSignup) {
       next('/signup/social')
     } else if (!user.hasRegisteredGym) {

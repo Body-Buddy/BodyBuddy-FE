@@ -70,7 +70,7 @@ export default {
   watch: {
     selectedGymId(newGymId, oldGymId) {
       if (newGymId !== oldGymId) {
-        this.fetchChatsForSelectedGym()
+        this.fetchPostsForSelectedGym()
       }
     }
   },

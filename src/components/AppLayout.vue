@@ -7,11 +7,12 @@
           <router-link to="/" class="text-xl font-bold text-gray-800 ml-2">💪🏻 바디버디</router-link>
 
           <!-- 헬스장 선택 드롭다운 -->
-          <div class="relative" v-if="showGymDropdown">
+          <div class="relative">
             <select
               :value="selectedGymId"
               @input="handleGymChange"
               class="w-48 p-2 bg-white rounded focus:outline-none focus:ring focus:ring-opacity-50 hover:bg-gray-100 appearance-none"
+              :disabled="!showGymDropdown"
             >
               <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
             </select>
@@ -69,16 +70,13 @@ export default {
   data() {
     return {
       token: null,
-      showLogout: false,
-      gyms: []
+      showLogout: false
     }
   },
   computed: {
-    ...mapState(['selectedGymId']),
+    ...mapState(['selectedGymId', 'gyms']),
     showGymDropdown() {
-      return this.$route.path === '/friends' &&
-        this.$router.path === '/chats' &&
-        this.$router.path === '/posts'
+      return ['/friends', '/chats', '/posts'].includes(this.$route.path)
     },
     authLink() {
       return this.token
@@ -86,18 +84,16 @@ export default {
         : { path: '/login', text: '로그인' }
     }
   },
-  async mounted() {
-    this.user = this.$store.getters.getUser
-    this.token = this.$store.getters.getAccessToken
-    this.showLogout = !!this.token
-
-    if (this.showGymDropdown) {
-      await this.fetchUserGyms()
-
-      if (this.selectedGymId === null && this.gyms.length > 0) {
-        this.$store.commit('setSelectedGymId', this.gyms[0].id)
+  watch: {
+    $route() {
+      if (this.showGymDropdown) {
+        this.$store.dispatch('fetchUserGyms')
       }
     }
+  },
+  async mounted() {
+    this.token = this.$store.getters.getAccessToken
+    this.showLogout = !!this.token
   },
   methods: {
     async logout() {
@@ -111,13 +107,16 @@ export default {
     deleteCookie(name) {
       document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
     },
-    async fetchUserGyms() {
-      const response = await api.get(`/users/${this.user.id}/gyms`)
-      this.gyms = response.data
-    },
     handleGymChange() {
       this.$store.dispatch('updateSelectedGymId', this.selectedGymId)
     }
   }
 }
 </script>
+
+<style scoped>
+  select:disabled {
+    background-color: #f1f3f5;
+    opacity: 0.7;
+  }
+</style>

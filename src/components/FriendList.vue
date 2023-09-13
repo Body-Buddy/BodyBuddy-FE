@@ -2,7 +2,7 @@
   <div class="max-w-xl mx-auto mt-10">
     <h2 class="p-4 text-2xl font-bold">친구 목록</h2>
     <div v-for="friend in friends" :key="friend.id" class="friend-entry">
-      <FriendProfile :friend="friend" @startChat="startChat"/>
+      <FriendProfile :friend="friend" @startChat="startChat" />
     </div>
   </div>
 </template>
@@ -23,9 +23,6 @@ export default {
   computed: {
     selectedGymId() {
       return this.$store.getters.getSelectedGymId
-    },
-    userId() {
-      return this.$store.state.user.id
     }
   },
   watch: {
@@ -35,8 +32,7 @@ export default {
       }
     }
   },
-  async mounted() {
-    await this.$store.dispatch('updateUserInfo')
+  mounted() {
     this.fetchFriendsForSelectedGym()
   },
   methods: {
@@ -45,9 +41,9 @@ export default {
       const response = await api.get(`/gyms/${this.selectedGymId}/matches`)
       this.friends = response.data
     },
-    startChat(friendId) {
-      // 채팅방 id 를 받아서 채팅방으로 이동
-      //this.$router.push(`/chats/`)
+    async startChat(friendId) {
+      const response = await api.post(`/gym/${this.selectedGymId}/direct-chats/${friendId}`)
+      this.$router.push(`/chats/${response.roomId}`)
     }
   }
 }
@@ -55,7 +51,7 @@ export default {
 
 <style>
 .friend-entry {
-  border-bottom: 1px solid;
+  border-bottom: 1px lightgray solid;
   padding-top: 1rem;
   margin-top: 1rem;
 }
