@@ -9,10 +9,11 @@
 
     <!-- 게시글 정보 -->
     <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">
-      <span>{{ post.author }}</span>
-      <span>{{ post.date }}</span>
+      <span>{{ post.author.profileImage }}</span>
+      <span>{{ post.author.nickname }}</span>
+      <span>{{ post.createdAt }}</span>
       <button @click="toggleLikePost" class="bg-blue-500 text-white px-3 py-1 rounded-full">
-        {{ post.likes }} 좋아요
+        {{ post.likeCount }} 좋아요
       </button>
     </div>
 
@@ -36,13 +37,13 @@
           <!-- 대댓글 들여쓰기 -->
           <p class="text-gray-700 mb-2">{{ comment.content }}</p>
           <div class="comment-footer flex justify-between items-center text-gray-500 text-sm">
-            <span>{{ comment.author }}</span>
-            <span>{{ comment.date }}</span>
+            <span>{{ comment.author.nickname }}</span>
+            <span>{{ comment.createdAt }}</span>
             <button
               @click="likeComment(comment.id)"
               class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 transition-colors"
             >
-              {{ comment.likes }} 좋아요
+              {{ comment.likeCount }} 좋아요
             </button>
           </div>
           <!-- 대댓글 입력 (대댓글의 깊이 제한 적용) -->
@@ -82,7 +83,7 @@ export default {
   },
   methods: {
     async getPost(postId) {
-      const response = await api.get(`/post/${postId}`)
+      const response = await api.get(`/posts/${postId}`)
       this.post = response.data
     },
     toggleLikePost() {

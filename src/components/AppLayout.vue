@@ -1,7 +1,7 @@
 <template>
   <div class="h-screen flex flex-col">
     <!-- 상단 네비게이션 바 -->
-    <nav class="p-4 shadow-md">
+    <nav class="p-4 border-b">
       <div class="mx-6 mx-auto flex justify-between items-center">
         <div class="flex items-center space-x-4">
           <router-link to="/" class="text-xl font-bold text-gray-800 ml-2">💪🏻 바디버디</router-link>
@@ -110,7 +110,6 @@ export default {
     handleGymChange(event) {
       const newSelectedGymId = event.target.value
       this.$store.dispatch('updateSelectedGymId', newSelectedGymId)
-      console.log(newSelectedGymId)
     }
   }
 }

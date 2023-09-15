@@ -39,14 +39,13 @@ const routes = [
         component: ChatDashboard,
         meta: {
           requiresAuth: true
-        }
-      },
-      {
-        path: '/chats/:chatId',
-        component: ChatRoom,
-        meta: {
-          requiresAuth: true
-        }
+        },
+        children: [
+          {
+            path: ':chatId',
+            component: ChatRoom
+          }
+        ]
       },
       {
         path: '/posts',

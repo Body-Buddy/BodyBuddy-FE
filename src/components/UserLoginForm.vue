@@ -85,9 +85,9 @@ export default {
         password: this.password
       })
       window.alert('성공적으로 로그인되었습니다!')
-
+      
       const user = response.data
-      const accessToken = response.headers.get('Authorization')
+      const accessToken = response.headers.get('authorization')
 
       if (accessToken) {
         this.$store.commit('setUser', user)

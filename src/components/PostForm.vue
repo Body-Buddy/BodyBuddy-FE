@@ -142,6 +142,10 @@ export default {
       }
     },
     async submitPost() {
+      if(this.title === '' || this.content === '' || this.category === '') {
+        window.alert('제목, 내용, 카테고리는 필수 입력 사항입니다.')
+        return
+      }
       const response = await api.post(`/posts`, {
         title: this.title,
         content: this.content,
@@ -150,9 +154,13 @@ export default {
         gymId: this.selectedGymId
       })
 
-      if (response.status == 201) {
+      console.log(response)
+
+      if (response.status === 201) {
         window.alert('게시글이 성공적으로 등록되었습니다.')
       }
+
+      this.$router.push('/posts')
     }
   }
 }

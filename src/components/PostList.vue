@@ -31,8 +31,10 @@
       <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
       <p class="mb-4">{{ post.content }}</p>
       <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">
-        <span>{{ post.author }}</span>
+        <span>{{ post.author.nickname }}</span>
         <span>{{ post.createdAt }}</span>
+        <span>{{ post.likeCount }}</span>
+        <span>{{ post.commentCount }}</span>
       </div>
     </div>
 
