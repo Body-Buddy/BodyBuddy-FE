@@ -107,8 +107,10 @@ export default {
     deleteCookie(name) {
       document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;'
     },
-    handleGymChange() {
-      this.$store.dispatch('updateSelectedGymId', this.selectedGymId)
+    handleGymChange(event) {
+      const newSelectedGymId = event.target.value
+      this.$store.dispatch('updateSelectedGymId', newSelectedGymId)
+      console.log(newSelectedGymId)
     }
   }
 }

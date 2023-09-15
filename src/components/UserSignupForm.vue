@@ -171,7 +171,7 @@ export default {
         return
       }
 
-      const response = await api.post('/users/signup', {
+      const response = await api.post('/auth/signup', {
         email: this.email,
         password: this.password,
         gender: this.gender,
