@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-xl mx-auto mt-10">
+  <div class="max-w-3xl mx-auto mt-10">
     <h2 class="text-2xl font-bold mb-4">글 작성하기</h2>
 
     <!-- 카테고리 선택 부분 -->

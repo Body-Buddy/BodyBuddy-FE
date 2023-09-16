@@ -34,11 +34,11 @@
       @click="goToPost(post.id)"
     >
       <!-- 게시글 내용 -->
-      <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
+      <h2 class="text-xl font-bold mb-4">{{ post.title }}</h2>
 
       <p class="mb-8">{{ truncateText(post.content, 200) }}</p>
       <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-2">
-        <div class="flex space-x-4">
+        <div class="flex space-x-4 items-center">
           <img
             :src="post.author.profileImage"
             alt="Author's profile image"
@@ -131,9 +131,9 @@ export default {
     },
     formatDate(dateString) {
       const date = new Date(dateString)
-      return `${date.getFullYear()}.${
+      return `${date.getFullYear()}/${
         date.getMonth() + 1
-      }.${date.getDate()}. ${date.getHours()}:${date.getMinutes()}`
+      }/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
     },
     truncateText(text, maxLength) {
       return text.length > maxLength ? text.slice(0, maxLength) + '...' : text

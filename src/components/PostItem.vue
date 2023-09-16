@@ -1,65 +1,128 @@
 <template>
-  <div class="post-container bg-white p-6 max-w-3xl mx-auto mt-10 rounded-lg shadow-md">
+  <div class="max-w-3xl mx-auto mt-10" v-if="post">
     <!-- 게시글 제목 및 본문 -->
-    <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
-    <p class="mb-4">{{ post.content }}</p>
-
-    <!-- 수정 버튼 (작성자 본인일 경우) -->
-    <button v-if="isPostAuthor()" @click="editPost">수정</button>
-    <button v-if="isPostAuthor()" @click="deletePost">삭제</button>
-
-    <!-- 게시글 정보 -->
-    <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">
-      <span>{{ post.author.profileImage }}</span>
-      <span>{{ post.author.nickname }}</span>
-      <span>{{ post.createdAt }}</span>
-      <button @click="toggleLikePost" class="bg-blue-500 text-white px-3 py-1 rounded-full">
-        {{ post.likeCount }} 좋아요
+    <div class="post-content pb-4">
+      <div class="flex justify-between items-start mb-4">
+        <div class="flex items-center">
+          <img
+            :src="post.author.profileImage"
+            alt="Author's profile image"
+            class="w-8 h-8 rounded-full mr-2"
+          />
+          <span class="font-medium">{{ post.author.nickname }}</span>
+        </div>
+        <div>
+          <span class="text-gray-500 text-sm">{{ formatDate(post.createdAt) }}</span>
+        </div>
+      </div>
+      <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
+      <p class="mb-4">{{ post.content }}</p>
+      <button
+        @click="toggleLikePost"
+        class="bg-blue-500 text-white px-3 py-1 rounded-full hover:bg-blue-600 transition-colors"
+      >
+        <i class="fas fa-thumbs-up"></i>
+        {{ post.likedUserIds.length }}
       </button>
     </div>
 
-    <!-- 댓글 입력 부분 -->
-    <input
-      v-model="newComment"
-      placeholder="댓글 작성하기..."
-      class="border p-2 w-full rounded mb-3"
-    />
-    <button
-      @click="addComment(null)"
-      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
-    >
-      댓글 등록
-    </button>
+    <div class="flex items-center my-4">
+      <input
+        class="flex-grow p-3 rounded-lg border border-gray-300 focus:outline-none"
+        v-model="newComment"
+        placeholder="댓글을 입력하세요..."
+      />
+      <button
+        @click="addComment(newComment)"
+        class="ml-4 px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+      >
+        전송
+      </button>
+    </div>
 
     <!-- 댓글 목록 -->
-    <div class="comments space-y-4 mt-6">
-      <div v-for="comment in post.comments" :key="comment.id">
-        <div :class="{ 'pl-6': comment.parentId !== 0 }">
-          <!-- 대댓글 들여쓰기 -->
-          <p class="text-gray-700 mb-2">{{ comment.content }}</p>
-          <div class="comment-footer flex justify-between items-center text-gray-500 text-sm">
-            <span>{{ comment.author.nickname }}</span>
-            <span>{{ comment.createdAt }}</span>
-            <button
-              @click="likeComment(comment.id)"
-              class="bg-gray-200 text-gray-700 px-3 py-1 rounded-full hover:bg-gray-300 transition-colors"
-            >
-              {{ comment.likeCount }} 좋아요
-            </button>
+    <div class="comments">
+      <div v-for="comment in post.comments" :key="comment.id" class="py-2 px-4">
+        <div :style="{ paddingLeft: comment.depth === 1 ? '40px' : '0px' }" class="border-b">
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex items-center">
+              <img
+                :src="comment.author.profileImage"
+                alt="Author's profile image"
+                class="w-6 h-6 rounded-full mr-2"
+              />
+              <span class="font-medium">{{ comment.author.nickname }}</span>
+            </div>
+            <div>
+              <!-- 대댓글 버튼 추가 -->
+              <template v-if="comment.depth === 0">
+                <button @click="toggleReplyForm(comment.id)" class="mr-2 text-gray-600">
+                  <i class="fas fa-comment-dots"></i>
+                </button>
+              </template>
+              <button @click="toggleLikeComment(comment)" class="text-gray-600">
+                <i class="fas fa-thumbs-up mr-1" :class="{ 'text-blue-500': isLiked(comment) }"></i>
+                <span>{{ comment.likedUserIds.length }}</span>
+              </button>
+              <template v-if="isCommentAuthor(comment)">
+                <button
+                  @click="startEditing(comment)"
+                  class="ml-2 text-yellow-400 hover:text-yellow-600"
+                >
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button
+                  @click="deleteComment(comment.id)"
+                  class="ml-2 text-red-600 hover:text-red-800"
+                >
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </template>
+            </div>
           </div>
-          <!-- 대댓글 입력 (대댓글의 깊이 제한 적용) -->
-          <div v-if="comment.parentId === 0" class="reply-input mt-3">
+          <template v-if="editingCommentId === comment.id">
+            <textarea
+              v-model="editingCommentContent"
+              class="border p-2 w-full rounded mb-2 mt-2"
+            ></textarea>
+            <div class="flex justify-end space-x-2 mb-2">
+              <button
+                @click="updateComment(comment.id)"
+                class="bg-green-500 text-white px-4 py-2 rounded"
+              >
+                저장
+              </button>
+              <button
+                @click="editingCommentId = null"
+                class="bg-gray-500 text-white px-4 py-2 rounded"
+              >
+                취소
+              </button>
+            </div>
+          </template>
+          <template v-else>
+            <p class="text-gray-700 mb-2 mt-2">{{ comment.content }}</p>
+          </template>
+          <div class="text-sm text-gray-500 mb-2">{{ formatDate(comment.createdAt) }}</div>
+
+          <!-- 조건부 렌더링으로 대댓글 입력 폼 표시 -->
+          
+          <div
+            v-if="comment.depth === 0 && activeReplyForm === comment.id"
+          >
+          <div class="flex items-center my-4">
             <input
+              class="flex-grow p-3 rounded-lg border border-gray-300 focus:outline-none"
               v-model="newReply[comment.id]"
-              placeholder="대댓글 작성하기..."
-              class="border p-2 w-full rounded mb-2"
+              placeholder="대댓글을 입력하세요..."
             />
             <button
-              @click="addComment(comment.id)"
-              class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              @click="addReplyComment(comment.id)"
+              class="ml-4 px-5 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
             >
-              대댓글 등록
+              전송
             </button>
+          </div>
           </div>
         </div>
       </div>
@@ -75,8 +138,12 @@ export default {
     return {
       post: null,
       postId: this.$route.params.postId,
+      userId: this.$store.getters.getUser.id,
       newComment: '',
-      newReply: {}
+      newReply: {},
+      editingCommentId: null,
+      editingCommentContent: '',
+      activeReplyForm: null
     }
   },
   mounted() {
@@ -86,53 +153,99 @@ export default {
     async getPost(postId) {
       const response = await api.get(`/posts/${postId}`)
       this.post = response.data
+
+      console.log(response.data.comments)
     },
-    toggleLikePost() {
-      // Add logic to check if the user has already liked the post
-      // and to toggle the like accordingly
-      api.post(`/posts/${this.postId}/likes`)
+    isLiked(postOrComment) {
+      return postOrComment.likedUserIds.includes(this.userId)
     },
-    toggleLikeComment(commentId) {
-      // Add logic to check if the user has already liked the comment
-      // and to toggle the like accordingly
-      api.post(`/comments/${commentId}/likes`)
+    async toggleLikePost() {
+      if (this.isLiked(this.post)) {
+        await api.delete(`/posts/${this.postId}/likes`)
+      } else {
+        await api.post(`/posts/${this.postId}/likes`)
+      }
+      this.getPost(this.postId)
     },
-    addComment(parentId = 0) {
-      const content = parentId === 0 ? this.newComment : this.newReply[parentId]
+    async toggleLikeComment(comment) {
+      if (this.isLiked(comment)) {
+        await api.delete(`/comments/${comment.id}/likes`)
+      } else {
+        await api.post(`/comments/${comment.id}/likes`)
+      }
+      this.getPost(this.postId)
+    },
+    async addComment(content) {
+      if (content && content.trim() !== '') {
+        const comment = {
+          postId: this.postId,
+          content: content,
+          parentId: 0
+        }
+        const response = await api.post(`/comments`, comment)
+        console.log(response)
+        this.getPost(this.postId)
+
+        this.newComment = ''
+      }
+    },
+    async addReplyComment(parentId) {
+      const content = this.newReply[parentId]
 
       if (content && content.trim() !== '') {
         const comment = {
-          id: Date.now(),
+          postId: this.postId,
           content: content,
-          author: this.$store.getters.getUser.nickname,
-          date: new Date().toISOString().slice(0, 10),
-          likes: 0,
           parentId: parentId
         }
+        const response = await api.post(`/comments`, comment)
+        console.log(response.data)
+        this.getPost(this.postId)
 
-        this.post.comments.push(comment)
-        parentId === 0 ? (this.newComment = '') : (this.newReply[parentId] = '')
-
-        api.post(`/comments`, comment)
+        this.newReply[parentId] = ''
       }
     },
-    deleteComment(commentId) {
-      const index = this.post.comments.findIndex((c) => c.id === commentId)
-      this.post.comments.splice(index, 1)
-      api.delete(`/comments/${commentId}`)
+    startEditing(comment) {
+      this.editingCommentId = comment.id
+      this.editingCommentContent = comment.content
+    },
+    async updateComment(commentId) {
+      await api.put(`/comments/${commentId}`, { content: this.editingCommentContent })
+      this.editingCommentId = null
+      this.getPost(this.postId)
+    },
+    async deleteComment(commentId) {
+      await api.delete(`/comments/${commentId}`)
+      this.getPost(this.postId)
     },
     editPost() {
       this.$router.push(`/posts/${this.postId}/edit`)
     },
     deletePost() {
-      api.delete(`/posts/${this.postId}`)
-      this.$router.push('/posts')
+      const response = api.delete(`/posts/${this.postId}`)
+      if (response.status === 200) {
+        window.alert('게시글이 삭제되었습니다!')
+        this.$router.push('/posts')
+      }
     },
     isPostAuthor() {
-      return this.$store.getters.getUser.id === this.post.author.id
+      return this.userId === this.post.author.id
     },
     isCommentAuthor(comment) {
-      return this.$store.getters.getUser.id === comment.author.id
+      return this.userId === comment.author.id
+    },
+    formatDate(dateString) {
+      const date = new Date(dateString)
+      return `${date.getFullYear()}/${
+        date.getMonth() + 1
+      }/${date.getDate()} ${date.getHours()}:${date.getMinutes()}`
+    },
+    toggleReplyForm(commentId) {
+      if (this.activeReplyForm === commentId) {
+        this.activeReplyForm = null
+      } else {
+        this.activeReplyForm = commentId
+      }
     }
   }
 }

@@ -9,7 +9,7 @@
         <div
           v-for="chat in filteredChats"
           :key="chat.id"
-          class="p-4 border-b cursor-pointer hover:bg-gray-100 flex items-center"
+          class="px-4 py-6 border-b cursor-pointer hover:bg-gray-100 flex items-center"
           @click="openChat(chat.id)"
         >
           <img
