@@ -138,26 +138,35 @@ export default {
       for (let i = 0; i < files.length; i++) {
         const file = files[i]
         const url = URL.createObjectURL(file)
-        this.mediaFiles.push({ name: file.name, type: file.type, url: url })
+        this.mediaFiles.push({ name: file.name, type: file.type, url: url, file: file })
       }
     },
     async submitPost() {
-      if(this.title === '' || this.content === '' || this.category === '') {
+      if (this.title === '' || this.content === '' || this.category === '') {
         window.alert('제목, 내용, 카테고리는 필수 입력 사항입니다.')
         return
       }
-      const response = await api.post(`/posts`, {
-        title: this.title,
-        content: this.content,
-        category: this.category,
-        mediaFiles: this.mediaFiles,
-        gymId: this.selectedGymId
+
+      const formData = new FormData()
+      formData.append('title', this.title)
+      formData.append('content', this.content)
+      formData.append('category', this.category)
+      formData.append('gymId', this.selectedGymId)
+
+      for (let i = 0; i < this.mediaFiles.length; i++) {
+        formData.append('files', this.mediaFiles[i].file)
+      }
+
+      const response = await api.post(`/posts`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       })
 
       console.log(response)
 
       if (response.status === 201) {
-        window.alert('게시글이 성공적으로 등록되었습니다.')
+        window.alert('게시글이 성공적으로 등록되었습니다!')
       }
 
       this.$router.push('/posts')

@@ -109,7 +109,6 @@ export default {
       if (!this.selectedGymId) return
       const response = await api.get(`/gyms/${this.selectedGymId}/posts`)
       this.posts = response.data.content
-      console.log(response.data.content)
     },
     async searchPosts() {
       if (!this.searchQuery.trim()) return

@@ -206,7 +206,7 @@ export default {
       const response = await api.get(`/posts/${postId}`)
       this.post = response.data
 
-      console.log(response.data.comments)
+      console.log(response.data)
     },
     isLiked(postOrComment) {
       return postOrComment.likedUserIds.includes(this.userId)
