@@ -42,9 +42,8 @@ export default {
       this.friends = response.data
     },
     async startChat(friendId) {
-      const response = await api.post(`/gym/${this.selectedGymId}/direct-chats/${friendId}`)
-      console.log(response.data)
-      this.$router.push(`/chats/${response.data.roomId}`)
+      const response = await api.post(`/gyms/${this.selectedGymId}/direct-chats/users/${friendId}`)
+      this.$router.push(`/chats/${response.data}`)
     }
   }
 }
