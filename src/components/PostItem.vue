@@ -6,6 +6,7 @@
 
     <!-- 수정 버튼 (작성자 본인일 경우) -->
     <button v-if="isPostAuthor()" @click="editPost">수정</button>
+    <button v-if="isPostAuthor()" @click="deletePost">삭제</button>
 
     <!-- 게시글 정보 -->
     <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-4">

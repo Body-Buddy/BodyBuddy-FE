@@ -89,11 +89,17 @@ export default {
       if (this.showGymDropdown) {
         this.$store.dispatch('fetchUserGyms')
       }
+    },
+    '$store.getters.getAccessToken': {
+      immediate: true,
+      handler(newValue) {
+        this.token = newValue
+        this.showLogout = !!newValue
+      }
     }
   },
   async mounted() {
     this.token = this.$store.getters.getAccessToken
-    this.showLogout = !!this.token
   },
   methods: {
     async logout() {

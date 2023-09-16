@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-xl mx-auto mt-10">
+  <div class="max-w-3xl mx-auto mt-10">
     <h2 class="p-4 text-2xl font-bold">친구 목록</h2>
     <div v-for="friend in friends" :key="friend.id" class="friend-entry">
       <FriendProfile :friend="friend" @startChat="startChat" />
