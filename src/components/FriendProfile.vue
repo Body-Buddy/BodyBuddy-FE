@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center mb-4">
-    <img :src="friend.imageUrl" alt="프로필 이미지" class="w-24 h-24 rounded-full flex-none mr-4" />
+    <img :src="profileImageUrl" alt="프로필 이미지" class="w-24 h-24 rounded-full flex-none mr-4" />
 
-    <div class="flex-col">
+    <div class="flex-col ml-4">
       <div class="flex-grow text-lg font-semibold mb-2">{{ friend.nickname }}</div>
       <div class="text-gray-500 mb-4">{{ friend.introduction }}</div>
     </div>
@@ -18,6 +18,13 @@ export default {
     friend: {
       type: Object,
       required: true
+    }
+  },
+  computed: {
+    profileImageUrl() {
+      return this.friend.profileImage
+        ? this.friend.profileImage
+        : '/default-profile.png'
     }
   },
   methods: {
