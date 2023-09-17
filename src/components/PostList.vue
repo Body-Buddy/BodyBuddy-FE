@@ -18,10 +18,24 @@
       </div>
     </div>
 
-    <div class="flex justify-end mb-4">
+    <!-- 카테고리 필터와 글쓰기 버튼 -->
+    <div class="flex justify-between mb-4">
+      <div class="relative w-32">
+        <select
+          v-model="selectedCategory"
+          @change="filterByCategory"
+          class="w-full p-2 border rounded"
+        >
+          <option value="">모든 카테고리</option>
+          <option v-for="category in categories" :key="category.id" :value="category.name">
+            {{ category.description }}
+          </option>
+        </select>
+      </div>
+
       <button
         @click="writePost"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+        class="bg-blue-600 text-white px-4 rounded hover:bg-blue-700 transition-colors"
       >
         <i class="fas fa-pencil-alt mr-2"></i>글쓰기
       </button>
@@ -34,11 +48,14 @@
       @click="goToPost(post.id)"
     >
       <!-- 게시글 내용 -->
-      <h2 class="text-xl font-bold mb-4">{{ post.title }}</h2>
+      <div class="text-gray-600 bg-gray-100 rounded px-2 py-1 mb-4 inline-block">
+        {{ getCategoryDescription(post.category) }}
+      </div>
+      <h2 class="text-xl font-bold ml-2 mb-4">{{ post.title }}</h2>
 
-      <p class="mb-8">{{ truncateText(post.content, 200) }}</p>
+      <p class="mb-8 ml-2">{{ truncateText(post.content, 200) }}</p>
       <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-2">
-        <div class="flex space-x-4 items-center">
+        <div class="flex space-x-4 items-center ml-2">
           <img
             :src="post.author.profileImage"
             alt="Author's profile image"
@@ -85,13 +102,21 @@ export default {
   data() {
     return {
       posts: [],
+      categories: [],
       currentPage: 1,
-      searchQuery: ''
+      searchQuery: '',
+      selectedCategory: ''
     }
   },
   computed: {
     selectedGymId() {
       return this.$store.getters.getSelectedGymId
+    },
+    getCategoryDescription() {
+      return (categoryName) => {
+        const category = this.categories.find((cat) => cat.name === categoryName)
+        return category ? category.description : ''
+      }
     }
   },
   watch: {
@@ -103,11 +128,27 @@ export default {
   },
   mounted() {
     this.fetchPostsForSelectedGym()
+    this.fetchCategories()
   },
   methods: {
     async fetchPostsForSelectedGym() {
       if (!this.selectedGymId) return
       const response = await api.get(`/gyms/${this.selectedGymId}/posts`)
+      this.posts = response.data.content
+    },
+    async fetchCategories() {
+      const response = await api.get('/categories')
+      this.categories = response.data
+      console.log(this.categories)
+    },
+    async filterByCategory() {
+      const params = { category: this.selectedCategory }
+
+      if (!this.selectedCategory) {
+        return this.fetchPostsForSelectedGym()
+      }
+      
+      const response = await api.get('/posts', { params })
       this.posts = response.data.content
     },
     async searchPosts() {
