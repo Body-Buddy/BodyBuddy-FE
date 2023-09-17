@@ -121,10 +121,12 @@ export default {
         const friendshipDate = new Date(this.chat.createdAt)
 
         const diffTime = currentDate - friendshipDate
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24))
         const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-
-        if (diffDays < 1) {
+       
+        if (diffHours < 1) {
+          return `방금 전 친구가 되었어요.`
+        }else if (diffDays < 1) {
           return `${diffHours}시간 전 친구가 되었어요.`
         } else if (diffDays < 30) {
           return `${diffDays}일 전 친구가 되었어요.`
