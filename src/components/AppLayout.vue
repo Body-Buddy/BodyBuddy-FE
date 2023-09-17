@@ -47,8 +47,12 @@
             :class="{ 'text-gray-600': $route.path !== authLink.path }"
             >{{ authLink.text }}</router-link
           >
-          <button v-if="showLogout" @click="logout" class="text-gray-800 hover:text-gray-600">
+          <button v-if="isLoggedIn" @click="logout" class="text-gray-800 hover:text-gray-600">
             로그아웃
+          </button>
+          <button v-if="isLoggedIn" class="relative" @click="openNotifications">
+            <i class="fa-regular fa-lg fa-bell text-gray-800 hover:text-gray-600"></i>
+            <span v-if="hasNewNotification" class="absolute bottom-5 left-4 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>
         </div>
       </div>
@@ -70,7 +74,8 @@ export default {
   data() {
     return {
       token: null,
-      showLogout: false
+      isLoggedIn: false,
+      hasNewNotification: true
     }
   },
   computed: {
@@ -94,7 +99,7 @@ export default {
       immediate: true,
       handler(newValue) {
         this.token = newValue
-        this.showLogout = !!newValue
+        this.isLoggedIn = !!newValue
       }
     }
   },
@@ -107,7 +112,7 @@ export default {
       this.deleteCookie('refreshToken')
 
       this.$router.push('/login')
-      this.showLogout = false
+      this.isLoggedIn = false
       this.token = null
     },
     deleteCookie(name) {
@@ -116,6 +121,11 @@ export default {
     handleGymChange(event) {
       const newSelectedGymId = event.target.value
       this.$store.dispatch('updateSelectedGymId', newSelectedGymId)
+    },
+    openNotifications() {
+      // 알림창을 여는 로직
+      // 알림을 읽었다면 'hasNewNotification'을 false로 설정
+      this.hasNewNotification = false;
     }
   }
 }

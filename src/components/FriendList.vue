@@ -2,7 +2,7 @@
   <div class="max-w-3xl mx-auto mt-10">
     <div class="p-4">
       <h2 class="text-2xl font-bold">친구 목록</h2>
-      <p class="mt-4 text-gray-500 text-md">
+      <p class="mt-4 text-gray-600 text-md">
         {{ nickname ? nickname : '사용자' }}님의 관심 태그를 기반으로 매칭 점수가 높은 친구들을
         우선적으로 보여드리고 있어요.
       </p>
