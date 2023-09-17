@@ -5,7 +5,8 @@ import FriendList from '@/components/FriendList.vue'
 import ChatRoom from '@/components/ChatRoom.vue'
 import ChatDashboard from '@/components/ChatDashboard.vue'
 import PostItem from '@/components/PostItem.vue'
-import PostForm from '@/components/PostForm.vue'
+import PostWriteForm from '@/components/PostWriteForm.vue'
+import PostEditForm from '@/components/PostEditForm.vue'
 import PostList from '@/components/PostList.vue'
 import UserLoginForm from '@/components/UserLoginForm.vue'
 import OAuth2RedirectHandler from '@/components/OAuth2RedirectHandler.vue'
@@ -56,7 +57,7 @@ const routes = [
       },
       {
         path: '/posts/write',
-        component: PostForm,
+        component: PostWriteForm,
         meta: {
           requiresAuth: true
         }
@@ -64,6 +65,13 @@ const routes = [
       {
         path: '/posts/:postId',
         component: PostItem,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
+        path: '/posts/:postId/edit',
+        component: PostEditForm,
         meta: {
           requiresAuth: true
         }

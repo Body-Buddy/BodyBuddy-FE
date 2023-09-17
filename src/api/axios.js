@@ -49,7 +49,7 @@ const handleApiError = async (error) => {
   if (error.response.status == 400) {
     console.log(error.response)
     console.error('Bad request error:', error.response)
-    window.alert('잘못된 입력입니다. 다시 확인해주세요.')
+    window.alert(error.response.data.errorMessage)
     return Promise.reject(error)
   }
 

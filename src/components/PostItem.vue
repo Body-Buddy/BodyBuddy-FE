@@ -12,14 +12,42 @@
           />
           <span class="font-medium">{{ post.author.nickname }}</span>
         </div>
-        <!-- 게시글 작성일 -->
-        <div>
-          <span class="text-gray-500 text-sm">{{ formatDate(post.createdAt) }}</span>
+        <!-- 게시글 작성일 및 수정, 삭제 버튼 -->
+        <div class="flex items-center">
+          <span class="text-gray-500 text-sm mr-4">{{ formatDate(post.createdAt) }}</span>
+          <template v-if="isPostAuthor()">
+            <button @click="editPost" class="text-yellow-400 hover:text-yellow-600">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button @click="deletePost" class="ml-2 text-red-600 hover:text-red-800">
+              <i class="fas fa-trash-alt"></i>
+            </button>
+          </template>
         </div>
       </div>
       <!-- 게시글 제목과 내용 -->
       <h2 class="text-2xl font-bold mb-4">{{ post.title }}</h2>
       <p class="mb-4">{{ post.content }}</p>
+
+      <!-- 게시글 이미지 및 비디오 -->
+      <div v-if="post.medias && post.medias.length">
+        <div v-for="media in post.medias" :key="media.id" class="my-8">
+          <!-- 이미지 타입일 경우 -->
+          <img
+            v-if="media.mediaType === 'IMAGE'"
+            :src="media.s3Url"
+            :alt="'Image ' + media.id"
+            class="w-1/2 rounded-lg"
+          />
+
+          <!-- 비디오 타입일 경우 -->
+          <video v-if="media.mediaType === 'VIDEO'" controls class="w-1/2 rounded-lg">
+            <source :src="media.s3Url" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+
       <!-- 좋아요 버튼 -->
       <button
         @click="toggleLikePost"
@@ -150,22 +178,22 @@
               </div>
               <div>
                 <!-- 대댓글 관련 버튼(좋아요, 수정, 삭제) -->
-                <button @click="toggleLikeComment(comment)" class="text-gray-500">
+                <button @click="toggleLikeComment(childComment)" class="text-gray-500">
                   <i
                     class="fas fa-thumbs-up mr-1"
-                    :class="{ 'text-blue-500': isLiked(comment) }"
+                    :class="{ 'text-blue-500': isLiked(childComment) }"
                   ></i>
-                  <span>{{ comment.likedUserIds.length }}</span>
+                  <span>{{ childComment.likedUserIds.length }}</span>
                 </button>
-                <template v-if="isCommentAuthor(comment)">
+                <template v-if="isCommentAuthor(childComment)">
                   <button
-                    @click="startEditing(comment)"
+                    @click="startEditing(childComment)"
                     class="ml-2 text-yellow-400 hover:text-yellow-600"
                   >
                     <i class="fas fa-edit"></i>
                   </button>
                   <button
-                    @click="deleteComment(comment.id)"
+                    @click="deleteComment(childComment.id)"
                     class="ml-2 text-red-600 hover:text-red-800"
                   >
                     <i class="fas fa-trash-alt"></i>
