@@ -4,10 +4,10 @@
 
     <div class="flex-col ml-4">
       <div class="flex-grow text-lg font-semibold mb-2">{{ friend.nickname }}</div>
-      <div class="text-gray-500 mb-4">{{ friend.introduction }}</div>
+      <div class="text-gray-500 mb-4 intro-text">{{ friend.introduction }}</div>
     </div>
     <button @click="startChatWithFriend" class="ml-auto btn-start-chat">
-      <i class="fas fa-paper-plane"></i>
+      <i class="w-24 fas fa-paper-plane"></i>
     </button>
   </div>
 </template>
@@ -67,4 +67,9 @@ export default {
   outline: none;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
 }
+
+.intro-text {
+  max-width: 500px; 
+}
 </style>
+

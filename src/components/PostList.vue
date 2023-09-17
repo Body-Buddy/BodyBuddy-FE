@@ -55,7 +55,7 @@
 
       <p class="mb-8 ml-2">{{ truncateText(post.content, 200) }}</p>
       <div class="post-footer flex justify-between items-center text-gray-500 text-sm mb-2">
-        <div class="flex space-x-4 items-center ml-2">
+        <div class="flex space-x-2 items-center ml-2">
           <img
             :src="post.author.profileImage"
             alt="Author's profile image"
